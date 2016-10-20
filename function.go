@@ -64,11 +64,11 @@ func (f *Function) Parameters() []Value {
 }
 
 // Entry returns the entry block of the function
-func (f *Function) Entry() Block {
+func (f *Function) Entry() *Block {
 	// Entry will (almost?) always be on top so loop is no cost
-	for _, b := range f.blocks {
+	for i, b := range f.blocks {
 		if b.name == "entry" {
-			return b
+			return &f.blocks[i]
 		}
 	}
 

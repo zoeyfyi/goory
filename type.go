@@ -47,6 +47,8 @@ func (t Type) String() string {
 		return "Float32"
 	case typeFloat64:
 		return "Float64"
+	case typeNil:
+		return "Nil"
 	default:
 		panic("Unknow type id, cannot get string of unknown type")
 	}
@@ -63,31 +65,9 @@ func (t Type) LLVMType() string {
 		return "f32"
 	case typeFloat64:
 		return "f64"
+	case typeNil:
+		return "null"
 	default:
 		panic("Unknow type id, cannot get llvm type string of unknown type")
 	}
-}
-
-// FunctionType describes the parameters and return values of a function
-type FunctionType struct {
-	parameters []Type
-	returnType Type
-}
-
-// NewFunctionType returns a function type with parameter types and a return type
-func NewFunctionType(parameterTypes []Type, returnType Type) *FunctionType {
-	return &FunctionType{
-		parameters: parameterTypes,
-		returnType: returnType,
-	}
-}
-
-// ParameterTypes returns a slice of a function types parameter types
-func (f *FunctionType) ParameterTypes() []Type {
-	return f.parameters
-}
-
-// ReturnType returns the type of a functions return type
-func (f *FunctionType) ReturnType() Type {
-	return f.returnType
 }

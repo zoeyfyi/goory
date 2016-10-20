@@ -11,7 +11,31 @@ const (
 type Instruction struct {
 	id       int
 	operands []Value
-	name     string
+	value    Value
+}
+
+// newInstruction creates a new instruction
+func newInstruction(id int, name string, operands ...Value) Instruction {
+	// Get the type the instruction returns
+	var t Type
+	switch id {
+	case instructionFadd:
+		if operands[0].t != operands[1].t {
+			panic("Operators of diffrent types")
+		}
+
+		t = operands[0].t
+	case instructionRet:
+		t = NilType
+	default:
+		panic("Unkown instruction id")
+	}
+
+	return Instruction{
+		id:       id,
+		operands: operands,
+		value:    newValue(t, name),
+	}
 }
 
 // String returns the string of the instruction type
@@ -19,36 +43,25 @@ func (i *Instruction) String() string {
 	switch i.id {
 	case instructionFadd:
 		return "fadd"
-	default:
-		panic("Unkown instruction id")
-	}
-}
-
-// Name returns the name the instruction is assigned
-func (i *Instruction) Name() string {
-	return i.name
-}
-
-// Type gets the type the instruction returns
-func (i *Instruction) Type() Type {
-	switch i.id {
-	case instructionFadd:
-		// Both operands should be the same, so return first
-		return i.operands[0].t
 	case instructionRet:
-		return NilType
+		return "ret"
 	default:
 		panic("Unkown instruction id")
 	}
 }
 
+// Value returns the value of the instruction
+func (i *Instruction) Value() Value {
+	return i.value
+}
+
+// llvm compiles the instruction to llvm ir
 func (i *Instruction) llvm() string {
 	switch i.id {
 	case instructionFadd:
-		i.Type()
-		return fmt.Sprintf("%%%s = fadd %s %%%s, %%%s", i.name, i.Type().LLVMType(), i.operands[0].name, i.operands[1].name)
+		return fmt.Sprintf("%%%s = fadd %s %%%s, %%%s", i.value.name, i.value.t.LLVMType(), i.operands[0].name, i.operands[1].name)
 	case instructionRet:
-		return fmt.Sprintf("ret %s %s", i.operands[0].t.LLVMType(), i.operands[0].name)
+		return fmt.Sprintf("ret %s %%%s", i.operands[0].t.LLVMType(), i.operands[0].name)
 	default:
 		panic("Unkown instruction id")
 	}

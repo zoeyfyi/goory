@@ -26,12 +26,7 @@ func (b *Block) Name() string {
 
 // Fadd creates a new float addition between left and right
 func (b *Block) Fadd(left Value, right Value) Instruction {
-	i := Instruction{
-		id:       instructionFadd,
-		operands: []Value{left, right},
-		name:     b.function.module.nextTempName(),
-	}
-
+	i := newInstruction(instructionFadd, b.function.module.nextTempName(), left, right)
 	b.instructions = append(b.instructions, i)
 
 	return i
@@ -39,12 +34,7 @@ func (b *Block) Fadd(left Value, right Value) Instruction {
 
 // Ret creates a new return for ret
 func (b *Block) Ret(ret Value) Instruction {
-	i := Instruction{
-		id:       instructionRet,
-		operands: []Value{ret},
-		name:     b.function.module.nextTempName(),
-	}
-
+	i := newInstruction(instructionRet, b.function.module.nextTempName(), ret)
 	b.instructions = append(b.instructions, i)
 
 	return i

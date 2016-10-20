@@ -14,3 +14,8 @@ func newValue(t Type, name string) Value {
 func (v *Value) Name() string {
 	return v.name
 }
+
+// Type returns the type of the value
+func (v *Value) Type() Type {
+	return v.t
+}

@@ -72,30 +72,136 @@ func TestBlock(t *testing.T) {
 }
 
 func TestInstruction(t *testing.T) {
-	m := NewModule("testing")
-	f := m.NewFunction("test", Int32Type, Float32Type, Float32Type)
-	b := f.Entry()
-	i := b.Fadd(f.Parameters()[0], f.Parameters()[1])
 
-	// Check name
-	if i.Name() != "2" {
-		// 0 and 1 for parameters so instruction should be 2
-		t.Errorf("Expected instruction to have name of 2")
+	// Returns a new block
+	nb := func() *Block {
+		m := NewModule("testing")
+		f := m.NewFunction("test", Int32Type)
+		b := f.Entry()
+		return b
 	}
 
-	// Check string
-	if i.String() != "fadd" {
-		t.Errorf("Expected instruction to string to fadd\nGot:%s", i.String())
+	cases := []struct {
+		i          Instruction
+		stringName string
+		t          Type
+		llvm       string
+	}{
+		{
+			i:          nb().Fadd(newValue(Float32Type, "left"), newValue(Float32Type, "right")),
+			stringName: "fadd",
+			t:          Float32Type,
+			llvm:       "%0 = fadd f32 %left, %right",
+		},
+		{
+			i:          nb().Ret(newValue(Int32Type, "ret")),
+			stringName: "ret",
+			t:          NilType,
+			llvm:       "ret i32 %ret",
+		},
 	}
 
-	// Check type
-	if i.Type() != Float32Type {
-		t.Errorf("Expected instruction type to be float32\nGot:%s", i.Type().String())
+	for _, c := range cases {
+		iValue := c.i.Value()
+
+		// Check name
+		if iValue.Name() != "0" {
+			// 0 and 1 for parameters so instruction should be 2
+			t.Errorf("Expected instruction to have name of 0")
+		}
+
+		// Check string
+		if c.i.String() != c.stringName {
+			t.Errorf("Expected instruction to string to fadd\nGot:%s", c.i.String())
+		}
+
+		// Check type
+		if iValue.Type() != c.t {
+			t.Errorf("Expected instruction type to be float32\nGot:%s", iValue.Type().String())
+		}
+
+		// Check llvm
+		if c.i.llvm() != c.llvm {
+			t.Errorf("Expected llvm: %s\nGot: %s", c.llvm, c.i.llvm())
+		}
 	}
 
-	// Check llvm
-	llvm := "%2 = fadd f32 %0, %1"
-	if i.llvm() != llvm {
-		t.Errorf("Expected llvm: %s\nGot: %s", llvm, i.llvm())
+}
+
+func TestType(t *testing.T) {
+	cases := []struct {
+		t          Type
+		llvm       string
+		stringType string
+	}{
+		{
+			t:          Int32Type,
+			llvm:       "i32",
+			stringType: "Int32",
+		},
+		{
+			t:          Int64Type,
+			llvm:       "i64",
+			stringType: "Int64",
+		},
+		{
+			t:          Float32Type,
+			llvm:       "f32",
+			stringType: "Float32",
+		},
+		{
+			t:          Float64Type,
+			llvm:       "f64",
+			stringType: "Float64",
+		},
+		{
+			t:          NilType,
+			llvm:       "null",
+			stringType: "Nil",
+		},
+	}
+
+	for _, c := range cases {
+		if c.t.LLVMType() != c.llvm {
+			t.Errorf("Expected llvm type: %q\nGot: %q", c.llvm, c.t.LLVMType())
+		}
+
+		if c.t.String() != c.stringType {
+			t.Errorf("Expected string type: %q\nGot: %q", c.stringType, c.t.String())
+		}
+	}
+}
+
+func TestLLVMCompile(t *testing.T) {
+	var cases []struct {
+		m    Module
+		llvm string
+	}
+
+	addCase := func(m Module, llvm string) {
+		cases = append(cases, struct {
+			m    Module
+			llvm string
+		}{m, llvm})
+	}
+
+	// Add two floats function
+	{
+		m := NewModule("testing")
+		f := m.NewFunction("addFloats", Float32Type, Float32Type, Float32Type)
+		b := f.Entry()
+		add := b.Fadd(f.Parameters()[0], f.Parameters()[1])
+		b.Ret(add.Value())
+
+		addCase(m, `define f32 @addFloats(f32 %0, f32 %1){
+	%2 = fadd f32 %0, %1
+	ret f32 %2
+}`)
+	}
+
+	for _, c := range cases {
+		if c.m.LLVM() != c.llvm {
+			t.Errorf("Expected:\n%s\nGot:\n%s", c.llvm, c.m.LLVM())
+		}
 	}
 }
