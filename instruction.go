@@ -29,11 +29,6 @@ func (i *Instruction) Name() string {
 	return i.name
 }
 
-// SetName sets the name the instruction is assigned
-func (i *Instruction) SetName(name string) {
-	i.name = name
-}
-
 // Type gets the type the instruction returns
 func (i *Instruction) Type() Type {
 	switch i.id {
@@ -51,7 +46,7 @@ func (i *Instruction) llvm() string {
 	switch i.id {
 	case instructionFadd:
 		i.Type()
-		return fmt.Sprintf("%s = fadd %s %s, %s", i.name, i.Type().LLVMType(), i.operands[0].name, i.operands[1].name)
+		return fmt.Sprintf("%%%s = fadd %s %%%s, %%%s", i.name, i.Type().LLVMType(), i.operands[0].name, i.operands[1].name)
 	case instructionRet:
 		return fmt.Sprintf("ret %s %s", i.operands[0].t.LLVMType(), i.operands[0].name)
 	default:

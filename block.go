@@ -1,18 +1,22 @@
 package goory
 
-import "fmt"
-
 // Block is a seqential list of instructions
 type Block struct {
+	function     *Function
 	name         string
 	instructions []Instruction
-	tempName     int
 }
 
-func (b *Block) nextTempName() string {
-	s := fmt.Sprintf("%d", b.tempName)
-	b.tempName++
-	return s
+func newBlock(function *Function, name string) Block {
+	return Block{
+		function: function,
+		name:     name,
+	}
+}
+
+// Function returns the parent function
+func (b *Block) Function() *Function {
+	return b.function
 }
 
 // Name gets the name of the block
@@ -21,27 +25,27 @@ func (b *Block) Name() string {
 }
 
 // Fadd creates a new float addition between left and right
-func (b *Block) Fadd(left Value, right Value) (*Instruction, Type) {
+func (b *Block) Fadd(left Value, right Value) Instruction {
 	i := Instruction{
 		id:       instructionFadd,
 		operands: []Value{left, right},
-		name:     b.nextTempName(),
+		name:     b.function.module.nextTempName(),
 	}
 
 	b.instructions = append(b.instructions, i)
 
-	return &i, i.Type()
+	return i
 }
 
 // Ret creates a new return for ret
-func (b *Block) Ret(ret Value) *Instruction {
+func (b *Block) Ret(ret Value) Instruction {
 	i := Instruction{
 		id:       instructionRet,
 		operands: []Value{ret},
-		name:     b.nextTempName(),
+		name:     b.function.module.nextTempName(),
 	}
 
 	b.instructions = append(b.instructions, i)
 
-	return &i
+	return i
 }

@@ -6,6 +6,10 @@ type Value struct {
 	name string
 }
 
+func newValue(t Type, name string) Value {
+	return Value{t, name}
+}
+
 // Name returns the name of the value
 func (v *Value) Name() string {
 	return v.name

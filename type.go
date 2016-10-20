@@ -14,6 +14,14 @@ var (
 		id: typeNil,
 	}
 
+	Int32Type = Type{
+		id: typeInt32,
+	}
+
+	Int64Type = Type{
+		id: typeInt64,
+	}
+
 	Float32Type = Type{
 		id: typeFloat32,
 	}

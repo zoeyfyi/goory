@@ -2,22 +2,40 @@ package goory
 
 // Function is a group of instructions that are executed is a new stack frame
 type Function struct {
-	name   string
-	fType  FunctionType
-	blocks []Block
+	module     *Module
+	name       string
+	returnType Type
+	argTypes   []Type
+	args       []Value
+	blocks     []Block
 }
 
 // NewFunction creates a new function with an entry block
-func NewFunction(name string, fType *FunctionType) (*Function, *Block) {
-	b := Block{
-		name: "entry",
+func newFunction(module *Module, name string, returnType Type, argTypes ...Type) Function {
+	// Turn types into values
+	args := make([]Value, len(argTypes))
+	for i, a := range argTypes {
+		args[i] = newValue(a, module.nextTempName())
 	}
 
-	return &Function{
-		name:   name,
-		fType:  *fType,
-		blocks: []Block{b},
-	}, &b
+	f := Function{
+		module:     module,
+		name:       name,
+		returnType: returnType,
+		argTypes:   argTypes,
+		args:       args,
+		blocks:     []Block{},
+	}
+
+	// Create entry block
+	b := newBlock(&f, "entry")
+	f.blocks = append(f.blocks, b)
+	return f
+}
+
+// Module returns the module the function is in
+func (f *Function) Module() *Module {
+	return f.module
 }
 
 // Name returns the function name
@@ -26,8 +44,8 @@ func (f *Function) Name() string {
 }
 
 // Type returns the function type
-func (f *Function) Type() *FunctionType {
-	return &f.fType
+func (f *Function) Type() (Type, []Type) {
+	return f.returnType, f.argTypes
 }
 
 // AddBlock adds a new block to the function
@@ -40,12 +58,17 @@ func (f *Function) AddBlock(name string) *Block {
 	return &b
 }
 
+// Parameters returns the values of function parameters
+func (f *Function) Parameters() []Value {
+	return f.args
+}
+
 // Entry returns the entry block of the function
-func (f *Function) Entry() *Block {
+func (f *Function) Entry() Block {
 	// Entry will (almost?) always be on top so loop is no cost
 	for _, b := range f.blocks {
 		if b.name == "entry" {
-			return &b
+			return b
 		}
 	}
 
