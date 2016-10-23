@@ -20,7 +20,7 @@ func TestFunction(t *testing.T) {
 	f := m.NewFunction("test", Int32Type, Int32Type, Int32Type)
 
 	// Check module
-	if !reflect.DeepEqual(f.Module(), &m) {
+	if !reflect.DeepEqual(f.Module(), m) {
 		t.Errorf("Function is not in parent module")
 	}
 
@@ -48,10 +48,16 @@ func TestFunction(t *testing.T) {
 		t.Errorf("Expected 2 parameters\nGot: %d", len(v))
 	}
 	for i, param := range v {
-		name := fmt.Sprintf("%d", i)
-		if param.Name() != name {
-			t.Errorf("Expected parameter %d to have name: %s\nGot: %s", i+1, name, param.Name())
+		name := fmt.Sprintf("%%%d", i)
+		if param.llvm() != name {
+			t.Errorf("Expected parameter %d to have name: %s\nGot: %s", i+1, name, param.llvm())
 		}
+	}
+
+	// Check new block can be added
+	b := f.AddBlock()
+	if b.Name() != "2" {
+		t.Errorf("Expected new block to have name: 2, got: %s", b.Name())
 	}
 }
 
@@ -61,7 +67,7 @@ func TestBlock(t *testing.T) {
 	b := f.Entry()
 
 	// Check function
-	if !reflect.DeepEqual(b.Function(), &f) {
+	if !reflect.DeepEqual(b.Function(), f) {
 		t.Errorf("Block is not in parent function")
 	}
 
@@ -82,22 +88,34 @@ func TestInstruction(t *testing.T) {
 	}
 
 	cases := []struct {
-		i          Instruction
+		i          *Instruction
 		stringName string
 		t          Type
 		llvm       string
 	}{
 		{
-			i:          nb().Fadd(newValue(Float32Type, "left"), newValue(Float32Type, "right")),
+			i:          nb().Fadd(newName(Float32Type, "left"), newName(Float32Type, "right")),
 			stringName: "fadd",
 			t:          Float32Type,
 			llvm:       "%0 = fadd f32 %left, %right",
 		},
 		{
-			i:          nb().Ret(newValue(Int32Type, "ret")),
+			i:          nb().Ret(newName(Int32Type, "ret")),
 			stringName: "ret",
 			t:          NilType,
 			llvm:       "ret i32 %ret",
+		},
+		{
+			i:          nb().Br(newBlock(nil, "test")),
+			stringName: "br",
+			t:          NilType,
+			llvm:       "br label %test",
+		},
+		{
+			i:          nb().CondBr(newName(BoolType, "cond"), newBlock(nil, "testTrue"), newBlock(nil, "testFalse")),
+			stringName: "br",
+			t:          NilType,
+			llvm:       "br i1 %cond, label %testTrue, label %testFalse",
 		},
 	}
 
@@ -105,7 +123,7 @@ func TestInstruction(t *testing.T) {
 		iValue := c.i.Value()
 
 		// Check name
-		if iValue.Name() != "0" {
+		if iValue.llvm() != "%0" {
 			// 0 and 1 for parameters so instruction should be 2
 			t.Errorf("Expected instruction to have name of 0")
 		}
@@ -159,6 +177,11 @@ func TestType(t *testing.T) {
 			llvm:       "null",
 			stringType: "Nil",
 		},
+		{
+			t:          BoolType,
+			llvm:       "i1",
+			stringType: "Bool",
+		},
 	}
 
 	for _, c := range cases {
@@ -172,15 +195,62 @@ func TestType(t *testing.T) {
 	}
 }
 
+func TestValues(t *testing.T) {
+	cases := []struct {
+		v      Value
+		isName bool
+		name   string
+		t      Type
+		llvm   string
+	}{
+		{
+			v:      newName(Int32Type, "test"),
+			isName: true,
+			name:   "test",
+			t:      Int32Type,
+			llvm:   "%test",
+		},
+		{
+			v:      ConstInt32(1002),
+			isName: false,
+			t:      Int32Type,
+			llvm:   "1002",
+		},
+	}
+
+	for _, c := range cases {
+		// Check name
+		if c.isName {
+			name, ok := c.v.(Name)
+			if !ok {
+				t.Errorf("Expected value %+s to be of type name", c.v)
+			}
+			if c.name != name.Name() {
+				t.Errorf("Expected name: %s, got name: %s", name, name.Name())
+			}
+		}
+
+		// Check type
+		if c.v.Type() != c.t {
+			t.Errorf("Expected type: %s, got type: %s", c.t.String(), c.v.Type().String())
+		}
+
+		// Check llvm
+		if c.v.llvm() != c.llvm {
+			t.Errorf("Expected llvm: %s, got: %s", c.llvm, c.v.llvm())
+		}
+	}
+}
+
 func TestLLVMCompile(t *testing.T) {
 	var cases []struct {
-		m    Module
+		m    *Module
 		llvm string
 	}
 
-	addCase := func(m Module, llvm string) {
+	addCase := func(m *Module, llvm string) {
 		cases = append(cases, struct {
-			m    Module
+			m    *Module
 			llvm string
 		}{m, llvm})
 	}
@@ -194,8 +264,31 @@ func TestLLVMCompile(t *testing.T) {
 		b.Ret(add.Value())
 
 		addCase(m, `define f32 @addFloats(f32 %0, f32 %1){
-	%2 = fadd f32 %0, %1
-	ret f32 %2
+	entry:
+		%2 = fadd f32 %0, %1
+		ret f32 %2
+}`)
+	}
+
+	//if true function
+	{
+		m := NewModule("testing")
+		f := m.NewFunction("ifs", Int32Type)
+		b := f.Entry()
+
+		ifTrue, ifFlase := f.AddBlock(), f.AddBlock()
+		ifTrue.Ret(ConstInt32(100))
+		ifFlase.Ret(ConstInt32(200))
+		trueValue := ConstBool(true)
+		b.CondBr(trueValue, ifTrue, ifFlase)
+
+		addCase(m, `define i32 @ifs(){
+	entry:
+		br i1 true, label %0, label %1
+	0:
+		ret i32 100
+	1:
+		ret i32 200
 }`)
 	}
 

@@ -7,15 +7,15 @@ type Function struct {
 	returnType Type
 	argTypes   []Type
 	args       []Value
-	blocks     []Block
+	blocks     []*Block
 }
 
 // NewFunction creates a new function with an entry block
-func newFunction(module *Module, name string, returnType Type, argTypes ...Type) Function {
+func newFunction(module *Module, name string, returnType Type, argTypes ...Type) *Function {
 	// Turn types into values
 	args := make([]Value, len(argTypes))
 	for i, a := range argTypes {
-		args[i] = newValue(a, module.nextTempName())
+		args[i] = newName(a, module.nextTempName())
 	}
 
 	f := Function{
@@ -24,13 +24,13 @@ func newFunction(module *Module, name string, returnType Type, argTypes ...Type)
 		returnType: returnType,
 		argTypes:   argTypes,
 		args:       args,
-		blocks:     []Block{},
+		blocks:     []*Block{},
 	}
 
 	// Create entry block
 	b := newBlock(&f, "entry")
 	f.blocks = append(f.blocks, b)
-	return f
+	return &f
 }
 
 // Module returns the module the function is in
@@ -49,13 +49,10 @@ func (f *Function) Type() (Type, []Type) {
 }
 
 // AddBlock adds a new block to the function
-func (f *Function) AddBlock(name string) *Block {
-	b := Block{
-		name: name,
-	}
-
+func (f *Function) AddBlock() *Block {
+	b := newBlock(f, f.module.nextTempName())
 	f.blocks = append(f.blocks, b)
-	return &b
+	return b
 }
 
 // Parameters returns the values of function parameters
@@ -68,7 +65,7 @@ func (f *Function) Entry() *Block {
 	// Entry will (almost?) always be on top so loop is no cost
 	for i, b := range f.blocks {
 		if b.name == "entry" {
-			return &f.blocks[i]
+			return f.blocks[i]
 		}
 	}
 

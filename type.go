@@ -5,6 +5,7 @@ const (
 	typeInt64
 	typeFloat32
 	typeFloat64
+	typeBool
 	typeNil
 )
 
@@ -29,6 +30,10 @@ var (
 	Float64Type = Type{
 		id: typeFloat64,
 	}
+
+	BoolType = Type{
+		id: typeBool,
+	}
 )
 
 // Type describes a fundemental type i.e integers, floats etc
@@ -47,6 +52,8 @@ func (t Type) String() string {
 		return "Float32"
 	case typeFloat64:
 		return "Float64"
+	case typeBool:
+		return "Bool"
 	case typeNil:
 		return "Nil"
 	default:
@@ -65,6 +72,8 @@ func (t Type) LLVMType() string {
 		return "f32"
 	case typeFloat64:
 		return "f64"
+	case typeBool:
+		return "i1"
 	case typeNil:
 		return "null"
 	default:
