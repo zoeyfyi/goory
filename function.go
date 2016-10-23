@@ -49,11 +49,8 @@ func (f *Function) Type() (Type, []Type) {
 }
 
 // AddBlock adds a new block to the function
-func (f *Function) AddBlock(name string) *Block {
-	b := Block{
-		name: name,
-	}
-
+func (f *Function) AddBlock() *Block {
+	b := newBlock(f, f.module.nextTempName())
 	f.blocks = append(f.blocks, b)
 	return &b
 }

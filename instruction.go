@@ -5,6 +5,8 @@ import "fmt"
 const (
 	instructionFadd = iota
 	instructionRet
+	instructionBr
+	instructionCondBr
 )
 
 // Instruction is an operation that is executed on its operands
@@ -27,6 +29,10 @@ func newInstruction(id int, name string, operands ...Value) Instruction {
 		t = operands[0].t
 	case instructionRet:
 		t = NilType
+	case instructionBr:
+		t = NilType
+	case instructionCondBr:
+		t = NilType
 	default:
 		panic("Unkown instruction id")
 	}
@@ -45,6 +51,10 @@ func (i *Instruction) String() string {
 		return "fadd"
 	case instructionRet:
 		return "ret"
+	case instructionBr:
+		return "br"
+	case instructionCondBr:
+		return "br"
 	default:
 		panic("Unkown instruction id")
 	}
@@ -62,6 +72,10 @@ func (i *Instruction) llvm() string {
 		return fmt.Sprintf("%%%s = fadd %s %%%s, %%%s", i.value.name, i.value.t.LLVMType(), i.operands[0].name, i.operands[1].name)
 	case instructionRet:
 		return fmt.Sprintf("ret %s %%%s", i.operands[0].t.LLVMType(), i.operands[0].name)
+	case instructionBr:
+		return fmt.Sprintf("br label %%%s", i.operands[0].name)
+	case instructionCondBr:
+		return fmt.Sprintf("br i1 %%%s, label %%%s, label %%%s", i.operands[0].name, i.operands[1].name, i.operands[2].name)
 	default:
 		panic("Unkown instruction id")
 	}

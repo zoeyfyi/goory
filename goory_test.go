@@ -53,6 +53,12 @@ func TestFunction(t *testing.T) {
 			t.Errorf("Expected parameter %d to have name: %s\nGot: %s", i+1, name, param.Name())
 		}
 	}
+
+	// Check new block can be added
+	b := f.AddBlock()
+	if b.Name() != "2" {
+		t.Errorf("Expected new block to have name: 2, got: %s", b.Name())
+	}
 }
 
 func TestBlock(t *testing.T) {
@@ -98,6 +104,18 @@ func TestInstruction(t *testing.T) {
 			stringName: "ret",
 			t:          NilType,
 			llvm:       "ret i32 %ret",
+		},
+		{
+			i:          nb().Br(newBlock(nil, "test")),
+			stringName: "br",
+			t:          NilType,
+			llvm:       "br label %test",
+		},
+		{
+			i:          nb().CondBr(newValue(BoolType, "cond"), newBlock(nil, "testTrue"), newBlock(nil, "testFalse")),
+			stringName: "br",
+			t:          NilType,
+			llvm:       "br i1 %cond, label %testTrue, label %testFalse",
 		},
 	}
 
@@ -159,6 +177,11 @@ func TestType(t *testing.T) {
 			llvm:       "null",
 			stringType: "Nil",
 		},
+		{
+			t:          BoolType,
+			llvm:       "i1",
+			stringType: "Bool",
+		},
 	}
 
 	for _, c := range cases {
@@ -197,6 +220,16 @@ func TestLLVMCompile(t *testing.T) {
 	%2 = fadd f32 %0, %1
 	ret f32 %2
 }`)
+	}
+
+	// if true function
+	{
+		m := NewModule("testing")
+		f := m.NewFunction("addFloats", Float32Type, Float32Type, Float32Type)
+		b := f.Entry()
+
+		ifTrue, ifFlase := f.AddBlock(), f.AddBlock()
+		b.CondBr()
 	}
 
 	for _, c := range cases {
