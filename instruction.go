@@ -17,16 +17,16 @@ type Instruction struct {
 }
 
 // newInstruction creates a new instruction
-func newInstruction(id int, name string, operands ...Value) Instruction {
+func newInstruction(id int, name string, operands ...Value) *Instruction {
 	// Get the type the instruction returns
 	var t Type
 	switch id {
 	case instructionFadd:
-		if operands[0].t != operands[1].t {
+		if operands[0].Type() != operands[1].Type() {
 			panic("Operators of diffrent types")
 		}
 
-		t = operands[0].t
+		t = operands[0].Type()
 	case instructionRet:
 		t = NilType
 	case instructionBr:
@@ -37,10 +37,10 @@ func newInstruction(id int, name string, operands ...Value) Instruction {
 		panic("Unkown instruction id")
 	}
 
-	return Instruction{
+	return &Instruction{
 		id:       id,
 		operands: operands,
-		value:    newValue(t, name),
+		value:    newName(t, name),
 	}
 }
 
@@ -65,17 +65,22 @@ func (i *Instruction) Value() Value {
 	return i.value
 }
 
+// Type returns the type of the instruction
+func (i *Instruction) Type() Type {
+	return i.value.Type()
+}
+
 // llvm compiles the instruction to llvm ir
 func (i *Instruction) llvm() string {
 	switch i.id {
 	case instructionFadd:
-		return fmt.Sprintf("%%%s = fadd %s %%%s, %%%s", i.value.name, i.value.t.LLVMType(), i.operands[0].name, i.operands[1].name)
+		return fmt.Sprintf("%s = fadd %s %s, %s", i.Value().llvm(), i.Type().LLVMType(), i.operands[0].llvm(), i.operands[1].llvm())
 	case instructionRet:
-		return fmt.Sprintf("ret %s %%%s", i.operands[0].t.LLVMType(), i.operands[0].name)
+		return fmt.Sprintf("ret %s %s", i.operands[0].Type().LLVMType(), i.operands[0].llvm())
 	case instructionBr:
-		return fmt.Sprintf("br label %%%s", i.operands[0].name)
+		return fmt.Sprintf("br label %s", i.operands[0].llvm())
 	case instructionCondBr:
-		return fmt.Sprintf("br i1 %%%s, label %%%s, label %%%s", i.operands[0].name, i.operands[1].name, i.operands[2].name)
+		return fmt.Sprintf("br i1 %s, label %s, label %s", i.operands[0].llvm(), i.operands[1].llvm(), i.operands[2].llvm())
 	default:
 		panic("Unkown instruction id")
 	}

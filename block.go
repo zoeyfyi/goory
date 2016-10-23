@@ -4,11 +4,11 @@ package goory
 type Block struct {
 	function     *Function
 	name         string
-	instructions []Instruction
+	instructions []*Instruction
 }
 
-func newBlock(function *Function, name string) Block {
-	return Block{
+func newBlock(function *Function, name string) *Block {
+	return &Block{
 		function: function,
 		name:     name,
 	}
@@ -26,11 +26,11 @@ func (b *Block) Name() string {
 
 // Value gets the value of the block
 func (b *Block) Value() Value {
-	return newValue(NilType, b.name)
+	return newName(NilType, b.name)
 }
 
 // Fadd creates a new float addition between left and right
-func (b *Block) Fadd(left Value, right Value) Instruction {
+func (b *Block) Fadd(left Value, right Value) *Instruction {
 	i := newInstruction(instructionFadd, b.function.module.nextTempName(), left, right)
 	b.instructions = append(b.instructions, i)
 
@@ -38,7 +38,7 @@ func (b *Block) Fadd(left Value, right Value) Instruction {
 }
 
 // Ret creates a new return for ret
-func (b *Block) Ret(ret Value) Instruction {
+func (b *Block) Ret(ret Value) *Instruction {
 	i := newInstruction(instructionRet, b.function.module.nextTempName(), ret)
 	b.instructions = append(b.instructions, i)
 
@@ -46,7 +46,7 @@ func (b *Block) Ret(ret Value) Instruction {
 }
 
 // Br creates a branch instruction to block
-func (b *Block) Br(block Block) Instruction {
+func (b *Block) Br(block *Block) *Instruction {
 	i := newInstruction(instructionBr, b.function.module.nextTempName(), block.Value())
 	b.instructions = append(b.instructions, i)
 
@@ -54,7 +54,7 @@ func (b *Block) Br(block Block) Instruction {
 }
 
 // CondBr creates a conditional branch based on the value on condition
-func (b *Block) CondBr(condition Value, trueBlock Block, falseBlock Block) Instruction {
+func (b *Block) CondBr(condition Value, trueBlock *Block, falseBlock *Block) *Instruction {
 	i := newInstruction(instructionCondBr, b.function.module.nextTempName(), condition, trueBlock.Value(), falseBlock.Value())
 	b.instructions = append(b.instructions, i)
 

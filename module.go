@@ -5,15 +5,15 @@ import "fmt"
 // Module is a single compilation unit
 type Module struct {
 	name      string
-	functions []Function
+	functions []*Function
 	tempCount int
 }
 
 // NewModule creates a new module with a name
-func NewModule(name string) Module {
-	return Module{
+func NewModule(name string) *Module {
+	return &Module{
 		name:      name,
-		functions: []Function{},
+		functions: []*Function{},
 		tempCount: 0,
 	}
 }
@@ -31,7 +31,7 @@ func (m *Module) nextTempName() string {
 }
 
 // NewFunction adds a new function to module
-func (m *Module) NewFunction(name string, returnType Type, argTypes ...Type) Function {
+func (m *Module) NewFunction(name string, returnType Type, argTypes ...Type) *Function {
 	f := newFunction(m, name, returnType, argTypes...)
 	m.functions = append(m.functions, f)
 	return f
@@ -48,7 +48,7 @@ func (m *Module) LLVM() string {
 		paramString := ""
 		parameters := f.Parameters()
 		for i, p := range parameters {
-			paramString += fmt.Sprintf("%s %%%s", p.t.LLVMType(), p.name)
+			paramString += fmt.Sprintf("%s %s", p.Type().LLVMType(), p.llvm())
 			if i < len(parameters)-1 {
 				paramString += ", "
 			}
@@ -56,8 +56,11 @@ func (m *Module) LLVM() string {
 
 		s += fmt.Sprintf("define %s @%s(%s){\n", rt.LLVMType(), f.name, paramString)
 
-		for _, i := range f.Entry().instructions {
-			s += "\t" + i.llvm() + "\n"
+		for _, b := range f.blocks {
+			s += "\t" + b.name + ":\n"
+			for _, i := range b.instructions {
+				s += "\t\t" + i.llvm() + "\n"
+			}
 		}
 
 		s += "}"
