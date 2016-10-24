@@ -119,6 +119,30 @@ func TestInstruction(t *testing.T) {
 			llvm:       "%0 = fdiv f32 %left, %right",
 		},
 		{
+			i:          nb().Add(newName(Int32Type, "left"), newName(Int32Type, "right")),
+			stringName: "add",
+			t:          Int32Type,
+			llvm:       "%0 = add i32 %left, %right",
+		},
+		{
+			i:          nb().Sub(newName(Int32Type, "left"), newName(Int32Type, "right")),
+			stringName: "sub",
+			t:          Int32Type,
+			llvm:       "%0 = sub i32 %left, %right",
+		},
+		{
+			i:          nb().Mul(newName(Int32Type, "left"), newName(Int32Type, "right")),
+			stringName: "mul",
+			t:          Int32Type,
+			llvm:       "%0 = mul i32 %left, %right",
+		},
+		{
+			i:          nb().Div(newName(Int32Type, "left"), newName(Int32Type, "right")),
+			stringName: "div",
+			t:          Int32Type,
+			llvm:       "%0 = div i32 %left, %right",
+		},
+		{
 			i:          nb().Ret(newName(Int32Type, "ret")),
 			stringName: "ret",
 			t:          NilType,

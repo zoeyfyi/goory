@@ -45,7 +45,7 @@ func (b *Block) Fdiv(left Value, right Value) *Instruction {
 	return i
 }
 
-// Fmul creates a new float addition between left and right
+// Fmul creates a new float multiplication between left and right
 func (b *Block) Fmul(left Value, right Value) *Instruction {
 	i := newInstruction(instructionFmul, b.function.module.nextTempName(), left, right)
 	b.instructions = append(b.instructions, i)
@@ -56,6 +56,38 @@ func (b *Block) Fmul(left Value, right Value) *Instruction {
 // Fsub creates a new float subtraction between left and right
 func (b *Block) Fsub(left Value, right Value) *Instruction {
 	i := newInstruction(instructionFsub, b.function.module.nextTempName(), left, right)
+	b.instructions = append(b.instructions, i)
+
+	return i
+}
+
+// Sub creates a new interger subtraction between left and right
+func (b *Block) Sub(left Value, right Value) *Instruction {
+	i := newInstruction(instructionSub, b.function.module.nextTempName(), left, right)
+	b.instructions = append(b.instructions, i)
+
+	return i
+}
+
+// Add creates a new interger addition between left and right
+func (b *Block) Add(left Value, right Value) *Instruction {
+	i := newInstruction(instructionAdd, b.function.module.nextTempName(), left, right)
+	b.instructions = append(b.instructions, i)
+
+	return i
+}
+
+// Mul creates a new interger multiplication between left and right
+func (b *Block) Mul(left Value, right Value) *Instruction {
+	i := newInstruction(instructionMul, b.function.module.nextTempName(), left, right)
+	b.instructions = append(b.instructions, i)
+
+	return i
+}
+
+// Div creates a new interger division between left and right
+func (b *Block) Div(left Value, right Value) *Instruction {
+	i := newInstruction(instructionDiv, b.function.module.nextTempName(), left, right)
 	b.instructions = append(b.instructions, i)
 
 	return i
