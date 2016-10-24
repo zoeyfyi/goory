@@ -35,7 +35,7 @@ func newInstruction(id int, name string, operands ...Value) *Instruction {
 		instructionAdd, instructionSub, instructionMul, instructionDiv:
 
 		// Check their are two operands
-		if len(operands) != 2 {
+		if operands == nil || len(operands) != 2 {
 			panic("Expecting two operands for maths instructions")
 		}
 
