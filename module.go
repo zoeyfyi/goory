@@ -63,7 +63,7 @@ func (m *Module) LLVM() string {
 			}
 		}
 
-		s += "}"
+		s += "}\n\n"
 	}
 
 	return s

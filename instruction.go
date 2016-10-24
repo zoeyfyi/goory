@@ -129,7 +129,7 @@ func (i *Instruction) llvm() string {
 				arguments += ", "
 			}
 		}
-		return fmt.Sprintf("call %s %s(%s)", i.operands[0].Type().LLVMType(), i.operands[0].llvm(), arguments)
+		return fmt.Sprintf("%s = call %s %s(%s)", i.Value().llvm(), i.operands[0].Type().LLVMType(), i.operands[0].llvm(), arguments)
 	case instructionBr:
 		return fmt.Sprintf("br label %s", i.operands[0].llvm())
 	case instructionCondBr:

@@ -164,7 +164,7 @@ func TestInstruction(t *testing.T) {
 			i:          nb().Call(newFunction(m, "test", Int32Type, Int32Type, Int32Type), ConstInt32(100), ConstInt32(200)),
 			stringName: "call",
 			t:          Int32Type,
-			llvm:       "call i32 @test(i32 100, i32 200)",
+			llvm:       "%2 = call i32 @test(i32 100, i32 200)",
 		},
 	}
 
@@ -355,7 +355,9 @@ func TestLLVMCompile(t *testing.T) {
 	entry:
 		%2 = fadd f32 %0, %1
 		ret f32 %2
-}`)
+}
+
+`)
 	}
 
 	//if true function
@@ -377,7 +379,45 @@ func TestLLVMCompile(t *testing.T) {
 		ret i32 100
 	1:
 		ret i32 200
-}`)
+}
+
+`)
+	}
+
+	// add function with main
+	{
+		m := NewModule("testing")
+		addFunction := m.NewFunction("add", Int32Type, Int32Type, Int32Type)
+		mainFunction := m.NewFunction("main", Int32Type)
+
+		// Add function
+		{
+			b := addFunction.Entry()
+			params := addFunction.Parameters()
+			result := b.Add(params[0], params[1])
+			b.Ret(result.Value())
+		}
+
+		// Main function
+		{
+			b := mainFunction.Entry()
+			result := b.Call(addFunction, ConstInt32(19), ConstInt32(12))
+			b.Ret(result.Value())
+		}
+
+		addCase(m, `define i32 @add(i32 %0, i32 %1){
+	entry:
+		%2 = add i32 %0, %1
+		ret i32 %2
+}
+
+define i32 @main(){
+	entry:
+		%4 = call i32 @add(i32 19, i32 12)
+		ret i32 %4
+}
+
+`)
 	}
 
 	for _, c := range cases {
