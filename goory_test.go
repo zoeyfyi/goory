@@ -98,25 +98,25 @@ func TestInstruction(t *testing.T) {
 			i:          nb().Fadd(newName(Float32Type, "left"), newName(Float32Type, "right")),
 			stringName: "fadd",
 			t:          Float32Type,
-			llvm:       "%temp0 = fadd f32 %left, %right",
+			llvm:       "%temp0 = fadd float %left, %right",
 		},
 		{
 			i:          nb().Fsub(newName(Float32Type, "left"), newName(Float32Type, "right")),
 			stringName: "fsub",
 			t:          Float32Type,
-			llvm:       "%temp0 = fsub f32 %left, %right",
+			llvm:       "%temp0 = fsub float %left, %right",
 		},
 		{
 			i:          nb().Fmul(newName(Float32Type, "left"), newName(Float32Type, "right")),
 			stringName: "fmul",
 			t:          Float32Type,
-			llvm:       "%temp0 = fmul f32 %left, %right",
+			llvm:       "%temp0 = fmul float %left, %right",
 		},
 		{
 			i:          nb().Fdiv(newName(Float32Type, "left"), newName(Float32Type, "right")),
 			stringName: "fdiv",
 			t:          Float32Type,
-			llvm:       "%temp0 = fdiv f32 %left, %right",
+			llvm:       "%temp0 = fdiv float %left, %right",
 		},
 		{
 			i:          nb().Add(newName(Int32Type, "left"), newName(Int32Type, "right")),
@@ -207,12 +207,12 @@ func TestType(t *testing.T) {
 		},
 		{
 			t:          Float32Type,
-			llvm:       "f32",
+			llvm:       "float",
 			stringType: "Float32",
 		},
 		{
 			t:          Float64Type,
-			llvm:       "f64",
+			llvm:       "double",
 			stringType: "Float64",
 		},
 		{
@@ -351,10 +351,10 @@ func TestLLVMCompile(t *testing.T) {
 		add := b.Fadd(f.Parameters()[0], f.Parameters()[1])
 		b.Ret(add.Value())
 
-		addCase(m, `define f32 @addFloats(f32 %temp0, f32 %temp1){
+		addCase(m, `define float @addFloats(float %temp0, float %temp1){
 	entry:
-		%temp2 = fadd f32 %temp0, %temp1
-		ret f32 %temp2
+		%temp2 = fadd float %temp0, %temp1
+		ret float %temp2
 }
 
 `)

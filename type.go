@@ -69,9 +69,9 @@ func (t Type) LLVMType() string {
 	case typeInt64:
 		return "i64"
 	case typeFloat32:
-		return "f32"
+		return "float"
 	case typeFloat64:
-		return "f64"
+		return "double"
 	case typeBool:
 		return "i1"
 	case typeNil:
