@@ -13,6 +13,9 @@ const (
 	instructionMul
 	instructionDiv
 
+	instructionICmp
+	instructionFCmp
+
 	instructionRet
 	instructionCall
 	instructionBr
@@ -45,14 +48,16 @@ func newInstruction(id int, name string, operands ...Value) *Instruction {
 		}
 
 		t = operands[0].Type()
+
+	case instructionICmp, instructionFCmp:
+		t = BoolType
+
 	case instructionCall:
 		t = operands[0].Type()
-	case instructionRet:
+
+	case instructionRet, instructionBr, instructionCondBr:
 		t = NilType
-	case instructionBr:
-		t = NilType
-	case instructionCondBr:
-		t = NilType
+
 	default:
 		panic("Unkown instruction id")
 	}
@@ -76,6 +81,8 @@ func (i *Instruction) String() string {
 		return "fmul"
 	case instructionFsub:
 		return "fsub"
+	case instructionFCmp:
+		return "fcmp"
 	// Interget operations
 	case instructionAdd:
 		return "add"
@@ -85,6 +92,8 @@ func (i *Instruction) String() string {
 		return "mul"
 	case instructionDiv:
 		return "div"
+	case instructionICmp:
+		return "icmp"
 	// Control flow
 	case instructionRet:
 		return "ret"
@@ -121,8 +130,20 @@ func (i *Instruction) llvm() string {
 	case instructionFadd, instructionFsub, instructionFmul, instructionFdiv,
 		instructionAdd, instructionSub, instructionMul, instructionDiv:
 
-		return fmt.Sprintf("%s = %s %s %s, %s", i.Value().llvm(), i.String(), i.Type().LLVMType(), i.operands[0].llvm(), i.operands[1].llvm())
+		varibleName := i.Value().llvm()
+		instructionName := i.String()
+		instructionType := i.Type().LLVMType()
 
+		return fmt.Sprintf("%s = %s %s %s, %s", varibleName, instructionName, instructionType, i.operands[0].llvm(), i.operands[1].llvm())
+	// Comparison instructions
+	case instructionFCmp, instructionICmp:
+
+		varibleName := i.value.llvm()
+		instructionName := i.String()
+		mode := i.operands[0].llvm()
+		instructionType := i.operands[1].Type().LLVMType()
+
+		return fmt.Sprintf("%s = %s %s %s %s, %s", varibleName, instructionName, mode, instructionType, i.operands[1].llvm(), i.operands[2].llvm())
 	// Control flow instructions
 	case instructionRet:
 		return fmt.Sprintf("ret %s %s", i.operands[0].Type().LLVMType(), i.operands[0].llvm())

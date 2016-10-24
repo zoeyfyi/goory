@@ -98,6 +98,14 @@ func (b *Block) Div(left Value, right Value) *Instruction {
 	return i
 }
 
+// ICmp creates a new interger compare between left and right
+func (b *Block) ICmp(mode CompareMode, left Value, right Value) *Instruction {
+	i := newInstruction(instructionICmp, b.function.module.nextTempName(), mode, left, right)
+	b.instructions = append(b.instructions, i)
+
+	return i
+}
+
 // Ret creates a new return for ret
 func (b *Block) Ret(ret Value) *Instruction {
 	i := newInstruction(instructionRet, b.function.module.nextTempName(), ret)

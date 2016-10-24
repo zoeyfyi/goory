@@ -7,6 +7,7 @@ const (
 	typeFloat64
 	typeBool
 	typeNil
+	typeCompareMode
 )
 
 // Types
@@ -33,6 +34,10 @@ var (
 
 	BoolType = Type{
 		id: typeBool,
+	}
+
+	compareMode = Type{
+		id: typeCompareMode,
 	}
 )
 

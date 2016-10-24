@@ -110,3 +110,103 @@ func ConstFloat64(i float64) Value {
 func ConstBool(b bool) Value {
 	return Value(Constant{BoolType, b})
 }
+
+const (
+	compareEqual = iota
+	compareNotEqual
+	compareUnsignedGreaterThan
+	compareUnsignedGreaterThanOrEqualTo
+	compareUnsignedLessThan
+	compareUnsignedLessThanOrEqualTo
+	compareSignedGreaterThan
+	compareSignedGreaterThanOrEqualTo
+	compareSignedLessThan
+	compareSignedLessThanOrEqualTo
+)
+
+type CompareMode struct {
+	value int
+}
+
+func (c CompareMode) Type() Type {
+	return compareMode
+}
+
+func (c CompareMode) valueType() {}
+
+func (c CompareMode) llvm() string {
+	switch c.value {
+	case compareEqual:
+		return "eq"
+	case compareNotEqual:
+		return "ne"
+	case compareUnsignedGreaterThan:
+		return "ugt"
+	case compareUnsignedGreaterThanOrEqualTo:
+		return "uge"
+	case compareUnsignedLessThan:
+		return "ult"
+	case compareUnsignedLessThanOrEqualTo:
+		return "ule"
+	case compareSignedGreaterThan:
+		return "sgt"
+	case compareSignedGreaterThanOrEqualTo:
+		return "sge"
+	case compareSignedLessThan:
+		return "slt"
+	case compareSignedLessThanOrEqualTo:
+		return "sle"
+	default:
+		panic("Unknown compare mode type")
+	}
+}
+
+// ModeEq
+func ModeEq() CompareMode {
+	return CompareMode{compareEqual}
+}
+
+// ModeNe
+func ModeNe() CompareMode {
+	return CompareMode{compareNotEqual}
+}
+
+// ModeUgt
+func ModeUgt() CompareMode {
+	return CompareMode{compareUnsignedGreaterThan}
+}
+
+// ModeUge
+func ModeUge() CompareMode {
+	return CompareMode{compareUnsignedGreaterThanOrEqualTo}
+}
+
+// ModeUlt
+func ModeUlt() CompareMode {
+	return CompareMode{compareUnsignedLessThan}
+}
+
+// ModeUle
+func ModeUle() CompareMode {
+	return CompareMode{compareUnsignedLessThanOrEqualTo}
+}
+
+// ModeSgt
+func ModeSgt() CompareMode {
+	return CompareMode{compareSignedGreaterThan}
+}
+
+// ModeSge
+func ModeSge() CompareMode {
+	return CompareMode{compareSignedGreaterThanOrEqualTo}
+}
+
+// ModeSlt
+func ModeSlt() CompareMode {
+	return CompareMode{compareSignedLessThan}
+}
+
+// ModeSle
+func ModeSle() CompareMode {
+	return CompareMode{compareSignedLessThanOrEqualTo}
+}
