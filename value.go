@@ -32,6 +32,29 @@ func (n Name) llvm() string {
 	return "%" + n.name
 }
 
+type FunctionValue struct {
+	returnType Type
+	name       string
+}
+
+func newFunctionValue(returnType Type, name string) Value {
+	return Value(FunctionValue{returnType, name})
+}
+
+// Name returns the name of the FunctionValue
+func (f FunctionValue) Name() string {
+	return f.name
+}
+
+// Type returns the type of the FunctionValue
+func (f FunctionValue) Type() Type {
+	return f.returnType
+}
+
+func (f FunctionValue) llvm() string {
+	return "@" + f.name
+}
+
 // Constant reprents a constant value
 type Constant struct {
 	t     Type

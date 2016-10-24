@@ -80,8 +80,9 @@ func TestBlock(t *testing.T) {
 func TestInstruction(t *testing.T) {
 
 	// Returns a new block
+	var m *Module
 	nb := func() *Block {
-		m := NewModule("testing")
+		m = NewModule("test")
 		f := m.NewFunction("test", Int32Type)
 		b := f.Entry()
 		return b
@@ -117,16 +118,16 @@ func TestInstruction(t *testing.T) {
 			t:          NilType,
 			llvm:       "br i1 %cond, label %testTrue, label %testFalse",
 		},
+		{
+			i:          nb().Call(newFunction(m, "test", Int32Type, Int32Type, Int32Type), ConstInt32(100), ConstInt32(200)),
+			stringName: "call",
+			t:          Int32Type,
+			llvm:       "call i32 @test(i32 100, i32 200)",
+		},
 	}
 
 	for _, c := range cases {
 		iValue := c.i.Value()
-
-		// Check name
-		if iValue.llvm() != "%0" {
-			// 0 and 1 for parameters so instruction should be 2
-			t.Errorf("Expected instruction to have name of 0")
-		}
 
 		// Check string
 		if c.i.String() != c.stringName {
@@ -135,7 +136,7 @@ func TestInstruction(t *testing.T) {
 
 		// Check type
 		if iValue.Type() != c.t {
-			t.Errorf("Expected instruction type to be float32\nGot:%s", iValue.Type().String())
+			t.Errorf("Expected instruction: %s, type to be %s\nGot:%s", c.stringName, c.t.String(), iValue.Type().String())
 		}
 
 		// Check llvm
@@ -196,40 +197,42 @@ func TestType(t *testing.T) {
 }
 
 func TestValues(t *testing.T) {
+	var (
+		typeName          = 100
+		typeFunctionValue = 101
+		typeConstant      = 102
+	)
+
 	cases := []struct {
-		v      Value
-		isName bool
-		name   string
-		t      Type
-		llvm   string
+		v         Value
+		valueType int
+		name      string
+		t         Type
+		llvm      string
 	}{
 		{
-			v:      newName(Int32Type, "test"),
-			isName: true,
-			name:   "test",
-			t:      Int32Type,
-			llvm:   "%test",
+			v:         newName(Int32Type, "test"),
+			valueType: typeName,
+			name:      "test",
+			t:         Int32Type,
+			llvm:      "%test",
 		},
 		{
-			v:      ConstInt32(1002),
-			isName: false,
-			t:      Int32Type,
-			llvm:   "1002",
+			v:         newFunctionValue(Int32Type, "test"),
+			valueType: typeFunctionValue,
+			name:      "test",
+			t:         Int32Type,
+			llvm:      "@test",
+		},
+		{
+			v:         ConstInt32(1002),
+			valueType: typeConstant,
+			t:         Int32Type,
+			llvm:      "1002",
 		},
 	}
 
 	for _, c := range cases {
-		// Check name
-		if c.isName {
-			name, ok := c.v.(Name)
-			if !ok {
-				t.Errorf("Expected value %+s to be of type name", c.v)
-			}
-			if c.name != name.Name() {
-				t.Errorf("Expected name: %s, got name: %s", name, name.Name())
-			}
-		}
-
 		// Check type
 		if c.v.Type() != c.t {
 			t.Errorf("Expected type: %s, got type: %s", c.t.String(), c.v.Type().String())
@@ -238,6 +241,31 @@ func TestValues(t *testing.T) {
 		// Check llvm
 		if c.v.llvm() != c.llvm {
 			t.Errorf("Expected llvm: %s, got: %s", c.llvm, c.v.llvm())
+		}
+
+		// Check value casts
+		switch c.valueType {
+		case typeName:
+			name, ok := c.v.(Name)
+			if !ok {
+				t.Errorf("Expected value %+s to be of type name", c.v)
+			}
+			if c.name != name.Name() {
+				t.Errorf("Expected name: %s, got name: %s", c.name, name.Name())
+			}
+		case typeConstant:
+			_, ok := c.v.(Constant)
+			if !ok {
+				t.Errorf("Expected value %+s to be of type constant", c.v)
+			}
+		case typeFunctionValue:
+			functionValue, ok := c.v.(FunctionValue)
+			if !ok {
+				t.Errorf("Expected value %+s to be of type functionValue", c.v)
+			}
+			if c.name != functionValue.Name() {
+				t.Errorf("Expected name: %s, got name: %s", c.name, functionValue.Name())
+			}
 		}
 	}
 }

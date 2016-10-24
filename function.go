@@ -8,6 +8,7 @@ type Function struct {
 	argTypes   []Type
 	args       []Value
 	blocks     []*Block
+	value      Value
 }
 
 // NewFunction creates a new function with an entry block
@@ -25,6 +26,7 @@ func newFunction(module *Module, name string, returnType Type, argTypes ...Type)
 		argTypes:   argTypes,
 		args:       args,
 		blocks:     []*Block{},
+		value:      newFunctionValue(returnType, name),
 	}
 
 	// Create entry block
@@ -46,6 +48,11 @@ func (f *Function) Name() string {
 // Type returns the function type
 func (f *Function) Type() (Type, []Type) {
 	return f.returnType, f.argTypes
+}
+
+// Value returns the function as a value (type being the return type and name is the function name)
+func (f *Function) Value() Value {
+	return f.value
 }
 
 // AddBlock adds a new block to the function

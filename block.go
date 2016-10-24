@@ -45,6 +45,16 @@ func (b *Block) Ret(ret Value) *Instruction {
 	return i
 }
 
+// Call creates a call instruction with the arguments
+func (b *Block) Call(function *Function, arguments ...Value) *Instruction {
+	operands := []Value{function.value}
+	operands = append(operands, arguments...)
+	i := newInstruction(instructionCall, b.function.module.nextTempName(), operands...)
+	b.instructions = append(b.instructions, i)
+
+	return i
+}
+
 // Br creates a branch instruction to block
 func (b *Block) Br(block *Block) *Instruction {
 	i := newInstruction(instructionBr, b.function.module.nextTempName(), block.Value())

@@ -5,6 +5,7 @@ import "fmt"
 const (
 	instructionFadd = iota
 	instructionRet
+	instructionCall
 	instructionBr
 	instructionCondBr
 )
@@ -26,6 +27,8 @@ func newInstruction(id int, name string, operands ...Value) *Instruction {
 			panic("Operators of diffrent types")
 		}
 
+		t = operands[0].Type()
+	case instructionCall:
 		t = operands[0].Type()
 	case instructionRet:
 		t = NilType
@@ -51,6 +54,8 @@ func (i *Instruction) String() string {
 		return "fadd"
 	case instructionRet:
 		return "ret"
+	case instructionCall:
+		return "call"
 	case instructionBr:
 		return "br"
 	case instructionCondBr:
@@ -77,6 +82,15 @@ func (i *Instruction) llvm() string {
 		return fmt.Sprintf("%s = fadd %s %s, %s", i.Value().llvm(), i.Type().LLVMType(), i.operands[0].llvm(), i.operands[1].llvm())
 	case instructionRet:
 		return fmt.Sprintf("ret %s %s", i.operands[0].Type().LLVMType(), i.operands[0].llvm())
+	case instructionCall:
+		arguments := ""
+		for op := 1; op < len(i.operands); op++ {
+			arguments += fmt.Sprintf("%s %s", i.operands[op].Type().LLVMType(), i.operands[op].llvm())
+			if op < len(i.operands)-1 {
+				arguments += ", "
+			}
+		}
+		return fmt.Sprintf("call %s %s(%s)", i.operands[0].Type().LLVMType(), i.operands[0].llvm(), arguments)
 	case instructionBr:
 		return fmt.Sprintf("br label %s", i.operands[0].llvm())
 	case instructionCondBr:
