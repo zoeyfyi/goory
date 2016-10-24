@@ -34,6 +34,12 @@ func newInstruction(id int, name string, operands ...Value) *Instruction {
 	case instructionFadd, instructionFdiv, instructionFmul, instructionFsub,
 		instructionAdd, instructionSub, instructionMul, instructionDiv:
 
+		// Check their are two operands
+		if len(operands) != 2 {
+			panic("Expecting two operands for maths instructions")
+		}
+
+		// Check the operand types
 		if operands[0].Type() != operands[1].Type() {
 			panic("Operators of diffrent types")
 		}
