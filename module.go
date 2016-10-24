@@ -25,7 +25,7 @@ func (m *Module) Name() string {
 
 // nextTempName increments a temp counter to produce temp names
 func (m *Module) nextTempName() string {
-	s := fmt.Sprintf("%d", m.tempCount)
+	s := fmt.Sprintf("temp%d", m.tempCount)
 	m.tempCount++
 	return s
 }

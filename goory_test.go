@@ -48,7 +48,7 @@ func TestFunction(t *testing.T) {
 		t.Errorf("Expected 2 parameters\nGot: %d", len(v))
 	}
 	for i, param := range v {
-		name := fmt.Sprintf("%%%d", i)
+		name := fmt.Sprintf("%%temp%d", i)
 		if param.llvm() != name {
 			t.Errorf("Expected parameter %d to have name: %s\nGot: %s", i+1, name, param.llvm())
 		}
@@ -56,7 +56,7 @@ func TestFunction(t *testing.T) {
 
 	// Check new block can be added
 	b := f.AddBlock()
-	if b.Name() != "2" {
+	if b.Name() != "temp2" {
 		t.Errorf("Expected new block to have name: 2, got: %s", b.Name())
 	}
 }
@@ -98,49 +98,49 @@ func TestInstruction(t *testing.T) {
 			i:          nb().Fadd(newName(Float32Type, "left"), newName(Float32Type, "right")),
 			stringName: "fadd",
 			t:          Float32Type,
-			llvm:       "%0 = fadd f32 %left, %right",
+			llvm:       "%temp0 = fadd f32 %left, %right",
 		},
 		{
 			i:          nb().Fsub(newName(Float32Type, "left"), newName(Float32Type, "right")),
 			stringName: "fsub",
 			t:          Float32Type,
-			llvm:       "%0 = fsub f32 %left, %right",
+			llvm:       "%temp0 = fsub f32 %left, %right",
 		},
 		{
 			i:          nb().Fmul(newName(Float32Type, "left"), newName(Float32Type, "right")),
 			stringName: "fmul",
 			t:          Float32Type,
-			llvm:       "%0 = fmul f32 %left, %right",
+			llvm:       "%temp0 = fmul f32 %left, %right",
 		},
 		{
 			i:          nb().Fdiv(newName(Float32Type, "left"), newName(Float32Type, "right")),
 			stringName: "fdiv",
 			t:          Float32Type,
-			llvm:       "%0 = fdiv f32 %left, %right",
+			llvm:       "%temp0 = fdiv f32 %left, %right",
 		},
 		{
 			i:          nb().Add(newName(Int32Type, "left"), newName(Int32Type, "right")),
 			stringName: "add",
 			t:          Int32Type,
-			llvm:       "%0 = add i32 %left, %right",
+			llvm:       "%temp0 = add i32 %left, %right",
 		},
 		{
 			i:          nb().Sub(newName(Int32Type, "left"), newName(Int32Type, "right")),
 			stringName: "sub",
 			t:          Int32Type,
-			llvm:       "%0 = sub i32 %left, %right",
+			llvm:       "%temp0 = sub i32 %left, %right",
 		},
 		{
 			i:          nb().Mul(newName(Int32Type, "left"), newName(Int32Type, "right")),
 			stringName: "mul",
 			t:          Int32Type,
-			llvm:       "%0 = mul i32 %left, %right",
+			llvm:       "%temp0 = mul i32 %left, %right",
 		},
 		{
 			i:          nb().Div(newName(Int32Type, "left"), newName(Int32Type, "right")),
 			stringName: "div",
 			t:          Int32Type,
-			llvm:       "%0 = div i32 %left, %right",
+			llvm:       "%temp0 = div i32 %left, %right",
 		},
 		{
 			i:          nb().Ret(newName(Int32Type, "ret")),
@@ -164,7 +164,7 @@ func TestInstruction(t *testing.T) {
 			i:          nb().Call(newFunction(m, "test", Int32Type, Int32Type, Int32Type), ConstInt32(100), ConstInt32(200)),
 			stringName: "call",
 			t:          Int32Type,
-			llvm:       "%2 = call i32 @test(i32 100, i32 200)",
+			llvm:       "%temp2 = call i32 @test(i32 100, i32 200)",
 		},
 	}
 
@@ -351,10 +351,10 @@ func TestLLVMCompile(t *testing.T) {
 		add := b.Fadd(f.Parameters()[0], f.Parameters()[1])
 		b.Ret(add.Value())
 
-		addCase(m, `define f32 @addFloats(f32 %0, f32 %1){
+		addCase(m, `define f32 @addFloats(f32 %temp0, f32 %temp1){
 	entry:
-		%2 = fadd f32 %0, %1
-		ret f32 %2
+		%temp2 = fadd f32 %temp0, %temp1
+		ret f32 %temp2
 }
 
 `)
@@ -374,10 +374,10 @@ func TestLLVMCompile(t *testing.T) {
 
 		addCase(m, `define i32 @ifs(){
 	entry:
-		br i1 true, label %0, label %1
-	0:
+		br i1 true, label %temp0, label %temp1
+	temp0:
 		ret i32 100
-	1:
+	temp1:
 		ret i32 200
 }
 
@@ -405,16 +405,16 @@ func TestLLVMCompile(t *testing.T) {
 			b.Ret(result.Value())
 		}
 
-		addCase(m, `define i32 @add(i32 %0, i32 %1){
+		addCase(m, `define i32 @add(i32 %temp0, i32 %temp1){
 	entry:
-		%2 = add i32 %0, %1
-		ret i32 %2
+		%temp2 = add i32 %temp0, %temp1
+		ret i32 %temp2
 }
 
 define i32 @main(){
 	entry:
-		%4 = call i32 @add(i32 19, i32 12)
-		ret i32 %4
+		%temp4 = call i32 @add(i32 19, i32 12)
+		ret i32 %temp4
 }
 
 `)
