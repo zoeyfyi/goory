@@ -101,6 +101,24 @@ func TestInstruction(t *testing.T) {
 			llvm:       "%0 = fadd f32 %left, %right",
 		},
 		{
+			i:          nb().Fsub(newName(Float32Type, "left"), newName(Float32Type, "right")),
+			stringName: "fsub",
+			t:          Float32Type,
+			llvm:       "%0 = fsub f32 %left, %right",
+		},
+		{
+			i:          nb().Fmul(newName(Float32Type, "left"), newName(Float32Type, "right")),
+			stringName: "fmul",
+			t:          Float32Type,
+			llvm:       "%0 = fmul f32 %left, %right",
+		},
+		{
+			i:          nb().Fdiv(newName(Float32Type, "left"), newName(Float32Type, "right")),
+			stringName: "fdiv",
+			t:          Float32Type,
+			llvm:       "%0 = fdiv f32 %left, %right",
+		},
+		{
 			i:          nb().Ret(newName(Int32Type, "ret")),
 			stringName: "ret",
 			t:          NilType,

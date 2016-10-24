@@ -37,6 +37,30 @@ func (b *Block) Fadd(left Value, right Value) *Instruction {
 	return i
 }
 
+// Fdiv creates a new float division between left and right
+func (b *Block) Fdiv(left Value, right Value) *Instruction {
+	i := newInstruction(instructionFdiv, b.function.module.nextTempName(), left, right)
+	b.instructions = append(b.instructions, i)
+
+	return i
+}
+
+// Fmul creates a new float addition between left and right
+func (b *Block) Fmul(left Value, right Value) *Instruction {
+	i := newInstruction(instructionFmul, b.function.module.nextTempName(), left, right)
+	b.instructions = append(b.instructions, i)
+
+	return i
+}
+
+// Fsub creates a new float subtraction between left and right
+func (b *Block) Fsub(left Value, right Value) *Instruction {
+	i := newInstruction(instructionFsub, b.function.module.nextTempName(), left, right)
+	b.instructions = append(b.instructions, i)
+
+	return i
+}
+
 // Ret creates a new return for ret
 func (b *Block) Ret(ret Value) *Instruction {
 	i := newInstruction(instructionRet, b.function.module.nextTempName(), ret)

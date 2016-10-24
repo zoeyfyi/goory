@@ -4,6 +4,10 @@ import "fmt"
 
 const (
 	instructionFadd = iota
+	instructionFsub
+	instructionFmul
+	instructionFdiv
+
 	instructionRet
 	instructionCall
 	instructionBr
@@ -22,7 +26,7 @@ func newInstruction(id int, name string, operands ...Value) *Instruction {
 	// Get the type the instruction returns
 	var t Type
 	switch id {
-	case instructionFadd:
+	case instructionFadd, instructionFdiv, instructionFmul, instructionFsub:
 		if operands[0].Type() != operands[1].Type() {
 			panic("Operators of diffrent types")
 		}
@@ -52,6 +56,12 @@ func (i *Instruction) String() string {
 	switch i.id {
 	case instructionFadd:
 		return "fadd"
+	case instructionFdiv:
+		return "fdiv"
+	case instructionFmul:
+		return "fmul"
+	case instructionFsub:
+		return "fsub"
 	case instructionRet:
 		return "ret"
 	case instructionCall:
@@ -80,6 +90,13 @@ func (i *Instruction) llvm() string {
 	switch i.id {
 	case instructionFadd:
 		return fmt.Sprintf("%s = fadd %s %s, %s", i.Value().llvm(), i.Type().LLVMType(), i.operands[0].llvm(), i.operands[1].llvm())
+	case instructionFdiv:
+		return fmt.Sprintf("%s = fdiv %s %s, %s", i.Value().llvm(), i.Type().LLVMType(), i.operands[0].llvm(), i.operands[1].llvm())
+	case instructionFmul:
+		return fmt.Sprintf("%s = fmul %s %s, %s", i.Value().llvm(), i.Type().LLVMType(), i.operands[0].llvm(), i.operands[1].llvm())
+	case instructionFsub:
+		return fmt.Sprintf("%s = fsub %s %s, %s", i.Value().llvm(), i.Type().LLVMType(), i.operands[0].llvm(), i.operands[1].llvm())
+
 	case instructionRet:
 		return fmt.Sprintf("ret %s %s", i.operands[0].Type().LLVMType(), i.operands[0].llvm())
 	case instructionCall:
