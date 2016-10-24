@@ -70,6 +70,8 @@ func (c Constant) llvm() string {
 	switch c.value.(type) {
 	case int8, int16, int32, int64:
 		return fmt.Sprintf("%d", c.value)
+	case float32, float64:
+		return fmt.Sprintf("%f", c.value)
 	case bool:
 		return fmt.Sprintf("%t", c.value)
 	default:
@@ -80,6 +82,21 @@ func (c Constant) llvm() string {
 // ConstInt32 returns a constant value of type int32
 func ConstInt32(i int32) Value {
 	return Value(Constant{Int32Type, i})
+}
+
+// ConstInt64 returns a constant value of type int64
+func ConstInt64(i int64) Value {
+	return Value(Constant{Int64Type, i})
+}
+
+// ConstFloat32 returns a constant value of type float32
+func ConstFloat32(i float32) Value {
+	return Value(Constant{Float32Type, i})
+}
+
+// ConstFloat64 returns a constant value of type float64
+func ConstFloat64(i float64) Value {
+	return Value(Constant{Float64Type, i})
 }
 
 // ConstBool returns a constant value of type bool

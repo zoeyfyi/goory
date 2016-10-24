@@ -272,6 +272,24 @@ func TestValues(t *testing.T) {
 			t:         Int32Type,
 			llvm:      "1002",
 		},
+		{
+			v:         ConstInt64(21545),
+			valueType: typeConstant,
+			t:         Int64Type,
+			llvm:      "21545",
+		},
+		{
+			v:         ConstFloat32(10.23),
+			valueType: typeConstant,
+			t:         Float32Type,
+			llvm:      "10.230000",
+		},
+		{
+			v:         ConstFloat64(45.123),
+			valueType: typeConstant,
+			t:         Float64Type,
+			llvm:      "45.123000",
+		},
 	}
 
 	for _, c := range cases {
