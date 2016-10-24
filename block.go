@@ -106,6 +106,14 @@ func (b *Block) ICmp(mode CompareMode, left Value, right Value) *Instruction {
 	return i
 }
 
+// FCmp creates a new float compare between left and right
+func (b *Block) FCmp(mode CompareMode, left Value, right Value) *Instruction {
+	i := newInstruction(instructionFCmp, b.function.module.nextTempName(), mode, left, right)
+	b.instructions = append(b.instructions, i)
+
+	return i
+}
+
 // Ret creates a new return for ret
 func (b *Block) Ret(ret Value) *Instruction {
 	i := newInstruction(instructionRet, b.function.module.nextTempName(), ret)
