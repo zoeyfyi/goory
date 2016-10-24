@@ -6,6 +6,7 @@ import "fmt"
 type Value interface {
 	Type() Type
 	llvm() string
+	valueType() // stops instruction satisfying the value interface
 }
 
 // Name reperesents a parameter or return value
@@ -22,6 +23,8 @@ func newName(t Type, name string) Value {
 func (n Name) Name() string {
 	return n.name
 }
+
+func (n Name) valueType() {}
 
 // Type returns the type of the Name
 func (n Name) Type() Type {
@@ -46,6 +49,8 @@ func (f FunctionValue) Name() string {
 	return f.name
 }
 
+func (f FunctionValue) valueType() {}
+
 // Type returns the type of the FunctionValue
 func (f FunctionValue) Type() Type {
 	return f.returnType
@@ -65,6 +70,8 @@ type Constant struct {
 func (c Constant) Type() Type {
 	return c.t
 }
+
+func (c Constant) valueType() {}
 
 func (c Constant) llvm() string {
 	switch c.value.(type) {
