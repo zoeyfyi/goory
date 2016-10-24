@@ -29,6 +29,11 @@ func (b *Block) Value() Value {
 	return newName(NilType, b.name)
 }
 
+// Terminated returns true if the block is terminated (ends in branch or return)
+func (b *Block) Terminated() bool {
+	return b.instructions[len(b.instructions)-1].IsTerminator()
+}
+
 // Fadd creates a new float addition between left and right
 func (b *Block) Fadd(left Value, right Value) *Instruction {
 	i := newInstruction(instructionFadd, b.function.module.nextTempName(), left, right)

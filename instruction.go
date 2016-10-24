@@ -99,6 +99,11 @@ func (i *Instruction) String() string {
 	}
 }
 
+// IsTerminator returns true if the instruction type ends the block (return or branch)
+func (i *Instruction) IsTerminator() bool {
+	return i.id == instructionRet || i.id == instructionBr || i.id == instructionCondBr
+}
+
 // Value returns the value of the instruction
 func (i *Instruction) Value() Value {
 	return i.value
