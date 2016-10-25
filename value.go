@@ -112,16 +112,33 @@ func ConstBool(b bool) Value {
 }
 
 const (
-	compareEqual = iota
-	compareNotEqual
-	compareUnsignedGreaterThan
-	compareUnsignedGreaterThanOrEqualTo
-	compareUnsignedLessThan
-	compareUnsignedLessThanOrEqualTo
-	compareSignedGreaterThan
-	compareSignedGreaterThanOrEqualTo
-	compareSignedLessThan
-	compareSignedLessThanOrEqualTo
+	// Integer modes
+	ieq = iota
+	ine
+	iugt
+	iuge
+	iult
+	iule
+	isgt
+	isge
+	islt
+	isle
+
+	// Float modes
+	foeq
+	fogt
+	foge
+	folt
+	fole
+	fone
+	ford
+	fueq
+	fugt
+	fuge
+	fult
+	fule
+	fune
+	funo
 )
 
 type CompareMode struct {
@@ -136,77 +153,178 @@ func (c CompareMode) valueType() {}
 
 func (c CompareMode) llvm() string {
 	switch c.value {
-	case compareEqual:
+	// Integer modes
+	case ieq:
 		return "eq"
-	case compareNotEqual:
+	case ine:
 		return "ne"
-	case compareUnsignedGreaterThan:
+	case iugt:
 		return "ugt"
-	case compareUnsignedGreaterThanOrEqualTo:
+	case iuge:
 		return "uge"
-	case compareUnsignedLessThan:
+	case iult:
 		return "ult"
-	case compareUnsignedLessThanOrEqualTo:
+	case iule:
 		return "ule"
-	case compareSignedGreaterThan:
+	case isgt:
 		return "sgt"
-	case compareSignedGreaterThanOrEqualTo:
+	case isge:
 		return "sge"
-	case compareSignedLessThan:
+	case islt:
 		return "slt"
-	case compareSignedLessThanOrEqualTo:
+	case isle:
 		return "sle"
+		// Float modes
+	case foeq:
+		return "oaq"
+	case fogt:
+		return "ogt"
+	case foge:
+		return "oge"
+	case folt:
+		return "olt"
+	case fole:
+		return "ole"
+	case fone:
+		return "one"
+	case ford:
+		return "ord"
+	case fueq:
+		return "ueq"
+	case fugt:
+		return "ugt"
+	case fuge:
+		return "uge"
+	case fult:
+		return "ult"
+	case fule:
+		return "ule"
+	case fune:
+		return "une"
+	case funo:
+		return "uno"
+
 	default:
 		panic("Unknown compare mode type")
 	}
 }
 
-// ModeEq
-func ModeEq() CompareMode {
-	return CompareMode{compareEqual}
+// IModeEq
+func IModeEq() CompareMode {
+	return CompareMode{ieq}
 }
 
-// ModeNe
-func ModeNe() CompareMode {
-	return CompareMode{compareNotEqual}
+// IModeNe
+func IModeNe() CompareMode {
+	return CompareMode{ine}
 }
 
-// ModeUgt
-func ModeUgt() CompareMode {
-	return CompareMode{compareUnsignedGreaterThan}
+// IModeUgt
+func IModeUgt() CompareMode {
+	return CompareMode{iugt}
 }
 
-// ModeUge
-func ModeUge() CompareMode {
-	return CompareMode{compareUnsignedGreaterThanOrEqualTo}
+// IModeUge
+func IModeUge() CompareMode {
+	return CompareMode{iuge}
 }
 
-// ModeUlt
-func ModeUlt() CompareMode {
-	return CompareMode{compareUnsignedLessThan}
+// IModeUlt
+func IModeUlt() CompareMode {
+	return CompareMode{iult}
 }
 
-// ModeUle
-func ModeUle() CompareMode {
-	return CompareMode{compareUnsignedLessThanOrEqualTo}
+// IModeUle
+func IModeUle() CompareMode {
+	return CompareMode{iule}
 }
 
-// ModeSgt
-func ModeSgt() CompareMode {
-	return CompareMode{compareSignedGreaterThan}
+// IModeSgt
+func IModeSgt() CompareMode {
+	return CompareMode{isgt}
 }
 
-// ModeSge
-func ModeSge() CompareMode {
-	return CompareMode{compareSignedGreaterThanOrEqualTo}
+// IModeSge
+func IModeSge() CompareMode {
+	return CompareMode{isge}
 }
 
-// ModeSlt
-func ModeSlt() CompareMode {
-	return CompareMode{compareSignedLessThan}
+// IModeSlt
+func IModeSlt() CompareMode {
+	return CompareMode{islt}
 }
 
-// ModeSle
-func ModeSle() CompareMode {
-	return CompareMode{compareSignedLessThanOrEqualTo}
+// IModeSle
+func IModeSle() CompareMode {
+	return CompareMode{isle}
+}
+
+// FModeOeq
+func FModeOeq() CompareMode {
+	return CompareMode{foeq}
+}
+
+// FModeOgt
+func FModeOgt() CompareMode {
+	return CompareMode{fogt}
+}
+
+// FModeOge
+func FModeOge() CompareMode {
+	return CompareMode{foge}
+}
+
+// FModeOlt
+func FModeOlt() CompareMode {
+	return CompareMode{folt}
+}
+
+// FModeOle
+func FModeOle() CompareMode {
+	return CompareMode{fole}
+}
+
+// FModeOne
+func FModeOne() CompareMode {
+	return CompareMode{fone}
+}
+
+// FModeOrd
+func FModeOrd() CompareMode {
+	return CompareMode{ford}
+}
+
+// FModeUeq
+func FModeUeq() CompareMode {
+	return CompareMode{fueq}
+}
+
+// FModeUgt
+func FModeUgt() CompareMode {
+	return CompareMode{fugt}
+}
+
+// FModeUge
+func FModeUge() CompareMode {
+	return CompareMode{fuge}
+}
+
+// FModeUlt
+func FModeUlt() CompareMode {
+	return CompareMode{fult}
+}
+
+// FModeUle
+func FModeUle() CompareMode {
+	return CompareMode{fule}
+}
+
+// FModeUne
+func FModeUne() CompareMode {
+	return CompareMode{fune}
+}
+
+// FModeUno
+func FModeUno() CompareMode {
+	return CompareMode{funo}
 }
