@@ -1,16 +1,20 @@
 package goory
 
+type nextName func() string
+
 // Block is a seqential list of instructions
 type Block struct {
 	function     *Function
 	name         string
-	instructions []*Instruction
+	instructions []Instruction
+	nextName     nextName
 }
 
 func newBlock(function *Function, name string) *Block {
 	return &Block{
 		function: function,
 		name:     name,
+		nextName: function.module.nextTempName,
 	}
 }
 
@@ -34,116 +38,237 @@ func (b *Block) Terminated() bool {
 	return b.instructions[len(b.instructions)-1].IsTerminator()
 }
 
-// Fadd creates a new float addition between left and right
-func (b *Block) Fadd(left Value, right Value) *Instruction {
-	i := newInstruction(instructionFadd, b.function.module.nextTempName(), left, right)
-	b.instructions = append(b.instructions, i)
+// Fadd creates a new float addition between lhs and rhs
+func (b *Block) Fadd(lhs Value, rhs Value) Instruction {
+	i := &fadd{
+		name: b.nextName(),
+		lhs:  lhs,
+		rhs:  rhs,
+	}
 
-	return i
-}
-
-// Fdiv creates a new float division between left and right
-func (b *Block) Fdiv(left Value, right Value) *Instruction {
-	i := newInstruction(instructionFdiv, b.function.module.nextTempName(), left, right)
-	b.instructions = append(b.instructions, i)
-
-	return i
-}
-
-// Fmul creates a new float multiplication between left and right
-func (b *Block) Fmul(left Value, right Value) *Instruction {
-	i := newInstruction(instructionFmul, b.function.module.nextTempName(), left, right)
 	b.instructions = append(b.instructions, i)
 
 	return i
 }
 
 // Fsub creates a new float subtraction between left and right
-func (b *Block) Fsub(left Value, right Value) *Instruction {
-	i := newInstruction(instructionFsub, b.function.module.nextTempName(), left, right)
+func (b *Block) Fsub(lhs Value, rhs Value) Instruction {
+	i := &fsub{
+		name: b.nextName(),
+		lhs:  lhs,
+		rhs:  rhs,
+	}
+
+	b.instructions = append(b.instructions, i)
+
+	return i
+}
+
+// Fmul creates a new float multiplication between left and right
+func (b *Block) Fmul(lhs Value, rhs Value) Instruction {
+	i := &fmul{
+		name: b.nextName(),
+		lhs:  lhs,
+		rhs:  rhs,
+	}
+
+	b.instructions = append(b.instructions, i)
+
+	return i
+}
+
+// Fdiv creates a new float division between lhs and rhs
+func (b *Block) Fdiv(lhs Value, rhs Value) Instruction {
+	i := &fdiv{
+		name: b.nextName(),
+		lhs:  lhs,
+		rhs:  rhs,
+	}
+
 	b.instructions = append(b.instructions, i)
 
 	return i
 }
 
 // Sub creates a new interger subtraction between left and right
-func (b *Block) Sub(left Value, right Value) *Instruction {
-	i := newInstruction(instructionSub, b.function.module.nextTempName(), left, right)
+func (b *Block) Sub(lhs Value, rhs Value) Instruction {
+	i := &sub{
+		name: b.nextName(),
+		lhs:  lhs,
+		rhs:  rhs,
+	}
+
 	b.instructions = append(b.instructions, i)
 
 	return i
 }
 
 // Add creates a new interger addition between left and right
-func (b *Block) Add(left Value, right Value) *Instruction {
-	i := newInstruction(instructionAdd, b.function.module.nextTempName(), left, right)
+func (b *Block) Add(lhs Value, rhs Value) Instruction {
+	i := &add{
+		name: b.nextName(),
+		lhs:  lhs,
+		rhs:  rhs,
+	}
+
 	b.instructions = append(b.instructions, i)
 
 	return i
 }
 
 // Mul creates a new interger multiplication between left and right
-func (b *Block) Mul(left Value, right Value) *Instruction {
-	i := newInstruction(instructionMul, b.function.module.nextTempName(), left, right)
+func (b *Block) Mul(lhs Value, rhs Value) Instruction {
+	i := &mul{
+		name: b.nextName(),
+		lhs:  lhs,
+		rhs:  rhs,
+	}
+
 	b.instructions = append(b.instructions, i)
 
 	return i
 }
 
 // Div creates a new interger division between left and right
-func (b *Block) Div(left Value, right Value) *Instruction {
-	i := newInstruction(instructionDiv, b.function.module.nextTempName(), left, right)
+func (b *Block) Div(lhs Value, rhs Value) Instruction {
+	i := &div{
+		name: b.nextName(),
+		lhs:  lhs,
+		rhs:  rhs,
+	}
+
 	b.instructions = append(b.instructions, i)
 
 	return i
 }
 
 // ICmp creates a new interger compare between left and right
-func (b *Block) ICmp(mode CompareMode, left Value, right Value) *Instruction {
-	i := newInstruction(instructionICmp, b.function.module.nextTempName(), mode, left, right)
+func (b *Block) ICmp(mode CompareMode, lhs Value, rhs Value) Instruction {
+	i := &icmp{
+		name: b.nextName(),
+		lhs:  lhs,
+		rhs:  rhs,
+	}
+
 	b.instructions = append(b.instructions, i)
 
 	return i
 }
 
 // FCmp creates a new float compare between left and right
-func (b *Block) FCmp(mode CompareMode, left Value, right Value) *Instruction {
-	i := newInstruction(instructionFCmp, b.function.module.nextTempName(), mode, left, right)
+func (b *Block) FCmp(mode CompareMode, lhs Value, rhs Value) Instruction {
+	i := &fcmp{
+		name: b.nextName(),
+		lhs:  lhs,
+		rhs:  rhs,
+	}
+
 	b.instructions = append(b.instructions, i)
 
 	return i
 }
 
 // Ret creates a new return for ret
-func (b *Block) Ret(ret Value) *Instruction {
-	i := newInstruction(instructionRet, b.function.module.nextTempName(), ret)
+func (b *Block) Ret(value Value) Instruction {
+	i := &ret{
+		name:  b.nextName(),
+		value: value,
+	}
+
 	b.instructions = append(b.instructions, i)
 
 	return i
 }
 
 // Call creates a call instruction with the arguments
-func (b *Block) Call(function *Function, arguments ...Value) *Instruction {
-	operands := []Value{function.value}
-	operands = append(operands, arguments...)
-	i := newInstruction(instructionCall, b.function.module.nextTempName(), operands...)
+func (b *Block) Call(function *Function, operands ...Value) Instruction {
+	i := &call{
+		name:     b.nextName(),
+		function: function,
+		operands: operands,
+	}
+
 	b.instructions = append(b.instructions, i)
 
 	return i
 }
 
 // Br creates a branch instruction to block
-func (b *Block) Br(block *Block) *Instruction {
-	i := newInstruction(instructionBr, b.function.module.nextTempName(), block.Value())
+func (b *Block) Br(block *Block) Instruction {
+	i := &br{
+		name:  b.nextName(),
+		block: block,
+	}
+
 	b.instructions = append(b.instructions, i)
 
 	return i
 }
 
 // CondBr creates a conditional branch based on the value on condition
-func (b *Block) CondBr(condition Value, trueBlock *Block, falseBlock *Block) *Instruction {
-	i := newInstruction(instructionCondBr, b.function.module.nextTempName(), condition, trueBlock.Value(), falseBlock.Value())
+func (b *Block) CondBr(condition Value, trueBlock *Block, falseBlock *Block) Instruction {
+	i := &condBr{
+		name:       b.nextName(),
+		condition:  condition,
+		trueBlock:  trueBlock,
+		falseBlock: falseBlock,
+	}
+
 	b.instructions = append(b.instructions, i)
 
 	return i
+}
+
+// Cast creates a cast for value to type cast
+func (b *Block) Cast(value Value, cast Type) Instruction {
+	valueType := value.Type()
+
+	// Value type is the same as cast type so return an empty instruction
+	if valueType == cast {
+		return &none{value}
+	}
+
+	// Cast integer to integer
+	if valueType.IsInteger() && cast.IsInteger() {
+		if valueType.id < cast.id {
+			// Cast is bigger so expand value
+			i := &zext{b.nextName(), value, cast}
+			b.instructions = append(b.instructions, i)
+			return i
+		}
+		// Cast is smaller so truncate value
+		i := &trunc{b.nextName(), value, cast}
+		b.instructions = append(b.instructions, i)
+		return i
+	}
+
+	// Cast float to float
+	if valueType.IsFloat() && cast.IsFloat() {
+		if valueType.id < cast.id {
+			// Cast is bigger so expand value
+			i := &fpext{b.nextName(), value, cast}
+			b.instructions = append(b.instructions, i)
+			return i
+		}
+		// Cast is smaller so truncate value
+		i := &fptrunc{b.nextName(), value, cast}
+		b.instructions = append(b.instructions, i)
+		return i
+	}
+
+	// Cast integer to float
+	if valueType.IsInteger() && cast.IsFloat() {
+		i := &sitofp{b.nextName(), value, cast}
+		b.instructions = append(b.instructions, i)
+		return i
+	}
+
+	// Cast float to integer
+	if valueType.IsFloat() && cast.IsInteger() {
+		i := &fptosi{b.nextName(), value, cast}
+		b.instructions = append(b.instructions, i)
+		return i
+	}
+
+	panic("Cannot cast non integer or pointer value")
 }

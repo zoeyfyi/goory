@@ -78,7 +78,6 @@ func TestBlock(t *testing.T) {
 }
 
 func TestInstruction(t *testing.T) {
-
 	// Returns a new block
 	var m *Module
 	nb := func() *Block {
@@ -89,101 +88,42 @@ func TestInstruction(t *testing.T) {
 	}
 
 	cases := []struct {
-		i          *Instruction
-		stringName string
-		t          Type
-		llvm       string
+		i            Instruction
+		String       string
+		IsTerminator bool
+		Type         Type
+		Value        Value
+		llvm         string
 	}{
 		{
-			i:          nb().Fadd(newName(Float32Type, "left"), newName(Float32Type, "right")),
-			stringName: "fadd",
-			t:          Float32Type,
-			llvm:       "%temp0 = fadd float %left, %right",
-		},
-		{
-			i:          nb().Fsub(newName(Float32Type, "left"), newName(Float32Type, "right")),
-			stringName: "fsub",
-			t:          Float32Type,
-			llvm:       "%temp0 = fsub float %left, %right",
-		},
-		{
-			i:          nb().Fmul(newName(Float32Type, "left"), newName(Float32Type, "right")),
-			stringName: "fmul",
-			t:          Float32Type,
-			llvm:       "%temp0 = fmul float %left, %right",
-		},
-		{
-			i:          nb().Fdiv(newName(Float32Type, "left"), newName(Float32Type, "right")),
-			stringName: "fdiv",
-			t:          Float32Type,
-			llvm:       "%temp0 = fdiv float %left, %right",
-		},
-		{
-			i:          nb().Add(newName(Int32Type, "left"), newName(Int32Type, "right")),
-			stringName: "add",
-			t:          Int32Type,
-			llvm:       "%temp0 = add i32 %left, %right",
-		},
-		{
-			i:          nb().Sub(newName(Int32Type, "left"), newName(Int32Type, "right")),
-			stringName: "sub",
-			t:          Int32Type,
-			llvm:       "%temp0 = sub i32 %left, %right",
-		},
-		{
-			i:          nb().Mul(newName(Int32Type, "left"), newName(Int32Type, "right")),
-			stringName: "mul",
-			t:          Int32Type,
-			llvm:       "%temp0 = mul i32 %left, %right",
-		},
-		{
-			i:          nb().Div(newName(Int32Type, "left"), newName(Int32Type, "right")),
-			stringName: "div",
-			t:          Int32Type,
-			llvm:       "%temp0 = div i32 %left, %right",
-		},
-		{
-			i:          nb().Ret(newName(Int32Type, "ret")),
-			stringName: "ret",
-			t:          NilType,
-			llvm:       "ret i32 %ret",
-		},
-		{
-			i:          nb().Br(newBlock(nil, "test")),
-			stringName: "br",
-			t:          NilType,
-			llvm:       "br label %test",
-		},
-		{
-			i:          nb().CondBr(newName(BoolType, "cond"), newBlock(nil, "testTrue"), newBlock(nil, "testFalse")),
-			stringName: "br",
-			t:          NilType,
-			llvm:       "br i1 %cond, label %testTrue, label %testFalse",
-		},
-		{
-			i:          nb().Call(newFunction(m, "test", Int32Type, Int32Type, Int32Type), ConstInt32(100), ConstInt32(200)),
-			stringName: "call",
-			t:          Int32Type,
-			llvm:       "%temp2 = call i32 @test(i32 100, i32 200)",
+			i:            nb().Add(ConstInt32(12), ConstInt32(23)),
+			String:       "add",
+			IsTerminator: false,
+			Type:         Int32Type,
+			Value:        Name{Int32Type, "temp0"},
+			llvm:         "%temp0 = add i32 12, 23",
 		},
 	}
 
 	for _, c := range cases {
-		iValue := c.i.Value()
-
-		// Check string
-		if c.i.String() != c.stringName {
-			t.Errorf("Expected instruction to string to fadd\nGot:%s", c.i.String())
+		if c.i.String() != c.String {
+			t.Errorf("Expected: %s, Got: %s", c.String, c.i.String())
 		}
 
-		// Check type
-		if iValue.Type() != c.t {
-			t.Errorf("Expected instruction: %s, type to be %s\nGot:%s", c.stringName, c.t.String(), iValue.Type().String())
+		if c.i.IsTerminator() != c.IsTerminator {
+			t.Errorf("Expected: %t, Got: %t", c.IsTerminator, c.i.IsTerminator())
 		}
 
-		// Check llvm
+		if c.i.Type() != c.Type {
+			t.Errorf("Expected: %s, Got: %s", c.Type, c.i.Type())
+		}
+
+		if c.i.Value() != c.Value {
+			t.Errorf("Expected: %s, Got: %s", c.Value, c.i.Value())
+		}
+
 		if c.i.llvm() != c.llvm {
-			t.Errorf("Expected llvm: %s\nGot: %s", c.llvm, c.i.llvm())
+			t.Errorf("Expected: %s, Got: %s", c.llvm, c.i.llvm())
 		}
 	}
 

@@ -70,6 +70,16 @@ type Type struct {
 	id int
 }
 
+// IsInteger returns true if type is: int, i8, i16, i32, i64
+func (t Type) IsInteger() bool {
+	return t.id >= typeInt && t.id <= typeInt64
+}
+
+// IsFloat returns true if type is: float, f32, f64
+func (t Type) IsFloat() bool {
+	return t.id >= typeFloat && t.id <= typeFloat64
+}
+
 // String returns the type name as a string
 func (t Type) String() string {
 	switch t.id {
