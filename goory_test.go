@@ -196,6 +196,16 @@ func TestType(t *testing.T) {
 		stringType string
 	}{
 		{
+			t:          Int8Type,
+			llvm:       "i8",
+			stringType: "Int8",
+		},
+		{
+			t:          Int16Type,
+			llvm:       "i16",
+			stringType: "Int16",
+		},
+		{
 			t:          Int32Type,
 			llvm:       "i32",
 			stringType: "Int32",
