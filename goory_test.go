@@ -103,6 +103,22 @@ func TestInstruction(t *testing.T) {
 			Value:        Name{Int32Type, "temp0"},
 			llvm:         "%temp0 = add i32 12, 23",
 		},
+		{
+			i:            nb().ICmp(IModeNe(), ConstInt32(12), ConstInt32(132)),
+			String:       "icmp",
+			IsTerminator: false,
+			Type:         BoolType,
+			Value:        Name{BoolType, "temp0"},
+			llvm:         "%temp0 = icmp ne i32 12, 132",
+		},
+		{
+			i:            nb().ICmp(IModeEq(), ConstInt32(12), ConstInt32(132)),
+			String:       "icmp",
+			IsTerminator: false,
+			Type:         BoolType,
+			Value:        Name{BoolType, "temp0"},
+			llvm:         "%temp0 = icmp eq i32 12, 132",
+		},
 	}
 
 	for _, c := range cases {
