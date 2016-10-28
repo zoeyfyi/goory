@@ -146,6 +146,7 @@ func (b *Block) Div(lhs Value, rhs Value) Instruction {
 func (b *Block) ICmp(mode CompareMode, lhs Value, rhs Value) Instruction {
 	i := &icmp{
 		name: b.nextName(),
+		mode: mode,
 		lhs:  lhs,
 		rhs:  rhs,
 	}
@@ -159,6 +160,7 @@ func (b *Block) ICmp(mode CompareMode, lhs Value, rhs Value) Instruction {
 func (b *Block) FCmp(mode CompareMode, lhs Value, rhs Value) Instruction {
 	i := &fcmp{
 		name: b.nextName(),
+		mode: mode,
 		lhs:  lhs,
 		rhs:  rhs,
 	}
