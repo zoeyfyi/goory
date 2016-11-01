@@ -7,52 +7,74 @@ type Type interface {
 	llvm() string
 }
 
-// PrimativeType defines a primative llvm type
-type PrimativeType interface {
+// ------------------------
+// Atomic Types
+// ------------------------
+
+// Atomic defines an atomic llvm type
+type Atomic interface {
 	llvm() string
 	Bits() int
+	IsInteger() bool
+	IsFloat() bool
+	IsDouble() bool
 }
 
 type intType struct{ bits int }
 
 // IntType is the type of llvm integers
-func IntType(bits int) Type    { return IntType{bits} }
-func (t intType) llvm() string { return fmt.Sprintf("i%d", t.bits) }
-func (t intType) Bits() int    { return t.bits }
+func NewIntType(bits int) Type    { return intType{bits} }
+func (t intType) llvm() string    { return fmt.Sprintf("i%d", t.bits) }
+func (t intType) Bits() int       { return t.bits }
+func (t intType) IsInteger() bool { return true }
+func (t intType) IsFloat() bool   { return false }
+func (t intType) IsDouble() bool  { return false }
 
 type floatType struct{}
 
 // FloatType is the type of llvm single precision floats
-func FloatType() Type            { return FloatType{} }
-func (t floatType) llvm() string { return "float" }
-func (t floatType) Bits() int    { return 32 }
+func NewFloatType() Type            { return floatType{} }
+func (t floatType) llvm() string    { return "float" }
+func (t floatType) Bits() int       { return 32 }
+func (t floatType) IsInteger() bool { return false }
+func (t floatType) IsFloat() bool   { return true }
+func (t floatType) IsDouble() bool  { return false }
 
 type doubleType struct{}
 
 // DoubleType is the type of llvm double precision floats
-func DoubleType() Type            { return DoubleType{} }
-func (t DoubleType) llvm() string { return "double" }
-func (t DoubleType) Bits() int    { return 64 }
+func NewDoubleType() Type            { return doubleType{} }
+func (t doubleType) llvm() string    { return "double" }
+func (t doubleType) Bits() int       { return 64 }
+func (t doubleType) IsInteger() bool { return false }
+func (t doubleType) IsFloat() bool   { return false }
+func (t doubleType) IsDouble() bool  { return true }
 
 type boolType struct{}
 
 // BoolType is a single bit integer which represents booleans in llvm
-func BoolType() Type            { return boolType{} }
-func (t BoolType) llvm() string { return "bool" }
-func (t BoolType) Bits() int    { return 1 }
+func NewBoolType() Type            { return boolType{} }
+func (t boolType) llvm() string    { return "bool" }
+func (t boolType) Bits() int       { return 1 }
+func (t boolType) IsInteger() bool { return false }
+func (t boolType) IsFloat() bool   { return false }
+func (t boolType) IsDouble() bool  { return false }
 
 type voidType struct{}
 
 // VoidType is a zero bit void/nil/null type in llvm
-func VoidType() Type            { return voidType{} }
-func (t VoidType) llvm() string { return "void" }
-func (t VoidType) Bits() int    { return 0 }
+func NewVoidType() Type            { return voidType{} }
+func (t voidType) llvm() string    { return "void" }
+func (t voidType) Bits() int       { return 0 }
+func (t voidType) IsInteger() bool { return false }
+func (t voidType) IsFloat() bool   { return false }
+func (t voidType) IsDouble() bool  { return false }
 
-// CompareTypes compares two types a and b
+// Compare compares two atomics a and b
 // returns 1 	if a > b
 // returns 0 	if a = b
 // returns -1 	if a < b
-func (a Type) Compare(b Type) int {
+func Compare(a Atomic, b Atomic) int {
 	if a.Bits() > b.Bits() {
 		return 1
 	}
@@ -64,7 +86,27 @@ func (a Type) Compare(b Type) int {
 	return -1
 }
 
-type AggregateType interface {
+func IsInteger(a Atomic) bool {
+	_, ok := a.(intType)
+	return ok
+}
+
+func IsFloat(a Atomic) bool {
+	_, ok := a.(floatType)
+	return ok
+}
+
+func IsDouble(a Atomic) bool {
+	_, ok := a.(doubleType)
+	return ok
+}
+
+// ------------------------
+// Aggeregate Types
+// ------------------------
+
+// Aggregate is a type made up of atomic types
+type Aggregate interface {
 	llvm() string
 }
 
@@ -74,14 +116,14 @@ type arrayType struct {
 }
 
 // ArrayType is the type of llvm arrays
-func ArrayType(baseType Type, count int) Type { return ArrayType{baseType, count} }
-func (t ArrayType) llvm() string              { return fmt.Sprintf("[%s x %d]", t.baseType.llvm(), t.count) }
+func NewArrayType(baseType Type, count int) Aggregate { return arrayType{baseType, count} }
+func (t arrayType) llvm() string                      { return fmt.Sprintf("[%s x %d]", t.baseType.llvm(), t.count) }
 
 type structType struct {
 	types []Type
 }
 
-func StructType(types ...Type) Type { return structType{types} }
+func NewStructType(types ...Type) Aggregate { return structType{types} }
 func (t structType) llvm() string {
 	s := "{ "
 	for i, structType := range t.types {
@@ -90,12 +132,20 @@ func (t structType) llvm() string {
 			s += ", "
 		}
 	}
-	s += " }"
+
+	return s + " }"
 }
 
-type functionType interface {
+// ------------------------
+// Function Type
+// ------------------------
+
+type FunctionType struct {
 	returnType Type
-	argTypes []Type
+	argTypes   []argument
 }
 
-func FunctionType(returnType Type, argTypes ...Type) Type { return functionType{returnType, argTypes} }
+// FunctionType is the type of a function
+func NewFunctionType(returnType Type, argTypes ...argument) FunctionType {
+	return FunctionType{returnType, argTypes}
+}

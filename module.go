@@ -31,7 +31,7 @@ func (m *Module) nextTempName() string {
 }
 
 // NewFunction adds a new function to module
-func (m *Module) NewFunction(name string, returnType Type, argTypes ...Type) *Function {
+func (m *Module) NewFunction(name string, returnType Type, argTypes ...argument) *Function {
 	f := newFunction(m, name, returnType, argTypes...)
 	m.functions = append(m.functions, f)
 	return f
@@ -42,19 +42,16 @@ func (m *Module) LLVM() string {
 	s := ""
 
 	for _, f := range m.functions {
-		// Function definition
-		rt, _ := f.Type()
-
-		paramString := ""
-		parameters := f.Parameters()
-		for i, p := range parameters {
-			paramString += fmt.Sprintf("%s %s", p.Type().LLVMType(), p.llvm())
-			if i < len(parameters)-1 {
-				paramString += ", "
+		argString := ""
+		for i, a := range f.args {
+			argString += a.llvm()
+			if i < len(f.args)-1 {
+				argString += ", "
 			}
 		}
 
-		s += fmt.Sprintf("define %s @%s(%s){\n", rt.LLVMType(), f.name, paramString)
+		s += fmt.Sprintf("define %s @%s(%s){\n",
+			f.functionType.returnType.llvm(), f.name, argString)
 
 		for _, b := range f.blocks {
 			s += "\t" + b.name + ":\n"

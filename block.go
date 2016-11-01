@@ -28,11 +28,6 @@ func (b *Block) Name() string {
 	return b.name
 }
 
-// Value gets the value of the block
-func (b *Block) Value() Value {
-	return newName(NilType, b.name)
-}
-
 // Terminated returns true if the block is terminated (ends in branch or return)
 func (b *Block) Terminated() bool {
 	return b.instructions[len(b.instructions)-1].IsTerminator()
@@ -142,34 +137,6 @@ func (b *Block) Div(lhs Value, rhs Value) Instruction {
 	return i
 }
 
-// ICmp creates a new interger compare between left and right
-func (b *Block) ICmp(mode CompareMode, lhs Value, rhs Value) Instruction {
-	i := &icmp{
-		name: b.nextName(),
-		mode: mode,
-		lhs:  lhs,
-		rhs:  rhs,
-	}
-
-	b.instructions = append(b.instructions, i)
-
-	return i
-}
-
-// FCmp creates a new float compare between left and right
-func (b *Block) FCmp(mode CompareMode, lhs Value, rhs Value) Instruction {
-	i := &fcmp{
-		name: b.nextName(),
-		mode: mode,
-		lhs:  lhs,
-		rhs:  rhs,
-	}
-
-	b.instructions = append(b.instructions, i)
-
-	return i
-}
-
 // Ret creates a new return for ret
 func (b *Block) Ret(value Value) Instruction {
 	i := &ret{
@@ -222,17 +189,21 @@ func (b *Block) CondBr(condition Value, trueBlock *Block, falseBlock *Block) Ins
 }
 
 // Cast creates a cast for value to type cast
-func (b *Block) Cast(value Value, cast Type) Instruction {
-	valueType := value.Type()
+func (b *Block) Cast(value Value, cast Atomic) Instruction {
+	atomic, isAtomic := value.Type().(Atomic)
+
+	if !isAtomic {
+		panic("Value is not an atomic type")
+	}
 
 	// Value type is the same as cast type so return an empty instruction
-	if valueType == cast {
+	if atomic == cast {
 		return &none{value}
 	}
 
 	// Cast integer to integer
-	if valueType.IsInteger() && cast.IsInteger() {
-		if valueType.id < cast.id {
+	if atomic.IsInteger() && cast.IsInteger() {
+		if Compare(atomic, cast) == 1 {
 			// Cast is bigger so expand value
 			i := &zext{b.nextName(), value, cast}
 			b.instructions = append(b.instructions, i)
@@ -245,8 +216,8 @@ func (b *Block) Cast(value Value, cast Type) Instruction {
 	}
 
 	// Cast float to float
-	if valueType.IsFloat() && cast.IsFloat() {
-		if valueType.id < cast.id {
+	if atomic.IsFloat() && cast.IsFloat() {
+		if Compare(atomic, cast) == 1 {
 			// Cast is bigger so expand value
 			i := &fpext{b.nextName(), value, cast}
 			b.instructions = append(b.instructions, i)
@@ -259,14 +230,14 @@ func (b *Block) Cast(value Value, cast Type) Instruction {
 	}
 
 	// Cast integer to float
-	if valueType.IsInteger() && cast.IsFloat() {
+	if atomic.IsInteger() && cast.IsFloat() {
 		i := &sitofp{b.nextName(), value, cast}
 		b.instructions = append(b.instructions, i)
 		return i
 	}
 
 	// Cast float to integer
-	if valueType.IsFloat() && cast.IsInteger() {
+	if atomic.IsFloat() && cast.IsInteger() {
 		i := &fptosi{b.nextName(), value, cast}
 		b.instructions = append(b.instructions, i)
 		return i
