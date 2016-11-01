@@ -1,137 +1,101 @@
 package goory
 
-const (
-	// Integers
-	typeInt = iota
-	typeInt8
-	typeInt16
-	typeInt32
-	typeInt64
+import "fmt"
 
-	// Floats
-	typeFloat
-	typeFloat32
-	typeFloat64
-
-	typeBool
-	typeNil
-	typeCompareMode
-)
-
-// Types
-var (
-	NilType = Type{
-		id: typeNil,
-	}
-
-	IntType = Type{
-		id: typeInt,
-	}
-
-	Int8Type = Type{
-		id: typeInt8,
-	}
-
-	Int16Type = Type{
-		id: typeInt16,
-	}
-
-	Int32Type = Type{
-		id: typeInt32,
-	}
-
-	Int64Type = Type{
-		id: typeInt64,
-	}
-
-	FloatType = Type{
-		id: typeFloat,
-	}
-
-	Float32Type = Type{
-		id: typeFloat32,
-	}
-
-	Float64Type = Type{
-		id: typeFloat64,
-	}
-
-	BoolType = Type{
-		id: typeBool,
-	}
-
-	compareMode = Type{
-		id: typeCompareMode,
-	}
-)
-
-// Type describes a fundemental type i.e integers, floats etc
-type Type struct {
-	id int
+// Type defines all llvm types
+type Type interface {
+	llvm() string
 }
 
-// IsInteger returns true if type is: int, i8, i16, i32, i64
-func (t Type) IsInteger() bool {
-	return t.id >= typeInt && t.id <= typeInt64
+// PrimativeType defines a primative llvm type
+type PrimativeType interface {
+	llvm() string
+	Bits() int
 }
 
-// IsFloat returns true if type is: float, f32, f64
-func (t Type) IsFloat() bool {
-	return t.id >= typeFloat && t.id <= typeFloat64
-}
+type intType struct{ bits int }
 
-// String returns the type name as a string
-func (t Type) String() string {
-	switch t.id {
-	case typeInt:
-		return "Int"
-	case typeInt8:
-		return "Int8"
-	case typeInt16:
-		return "Int16"
-	case typeInt32:
-		return "Int32"
-	case typeInt64:
-		return "Int64"
-	case typeFloat:
-		return "Float"
-	case typeFloat32:
-		return "Float32"
-	case typeFloat64:
-		return "Float64"
-	case typeBool:
-		return "Bool"
-	case typeNil:
-		return "Nil"
-	default:
-		panic("Unknow type id, cannot get string of unknown type")
+// IntType is the type of llvm integers
+func IntType(bits int) Type    { return IntType{bits} }
+func (t intType) llvm() string { return fmt.Sprintf("i%d", t.bits) }
+func (t intType) Bits() int    { return t.bits }
+
+type floatType struct{}
+
+// FloatType is the type of llvm single precision floats
+func FloatType() Type            { return FloatType{} }
+func (t floatType) llvm() string { return "float" }
+func (t floatType) Bits() int    { return 32 }
+
+type doubleType struct{}
+
+// DoubleType is the type of llvm double precision floats
+func DoubleType() Type            { return DoubleType{} }
+func (t DoubleType) llvm() string { return "double" }
+func (t DoubleType) Bits() int    { return 64 }
+
+type boolType struct{}
+
+// BoolType is a single bit integer which represents booleans in llvm
+func BoolType() Type            { return boolType{} }
+func (t BoolType) llvm() string { return "bool" }
+func (t BoolType) Bits() int    { return 1 }
+
+type voidType struct{}
+
+// VoidType is a zero bit void/nil/null type in llvm
+func VoidType() Type            { return voidType{} }
+func (t VoidType) llvm() string { return "void" }
+func (t VoidType) Bits() int    { return 0 }
+
+// CompareTypes compares two types a and b
+// returns 1 	if a > b
+// returns 0 	if a = b
+// returns -1 	if a < b
+func (a Type) Compare(b Type) int {
+	if a.Bits() > b.Bits() {
+		return 1
 	}
+
+	if a.Bits() == b.Bits() {
+		return 0
+	}
+
+	return -1
 }
 
-// LLVMType returns the type name in llvm format
-func (t Type) LLVMType() string {
-	switch t.id {
-	case typeInt:
-		return "i64" // TODO: Check what type this should be
-	case typeInt8:
-		return "i8"
-	case typeInt16:
-		return "i16"
-	case typeInt32:
-		return "i32"
-	case typeInt64:
-		return "i64"
-	case typeFloat:
-		return "double" // TODO: Check what type this should be
-	case typeFloat32:
-		return "float"
-	case typeFloat64:
-		return "double"
-	case typeBool:
-		return "i1"
-	case typeNil:
-		return "null"
-	default:
-		panic("Unknow type id, cannot get llvm type string of unknown type")
-	}
+type AggregateType interface {
+	llvm() string
 }
+
+type arrayType struct {
+	baseType Type
+	count    int
+}
+
+// ArrayType is the type of llvm arrays
+func ArrayType(baseType Type, count int) Type { return ArrayType{baseType, count} }
+func (t ArrayType) llvm() string              { return fmt.Sprintf("[%s x %d]", t.baseType.llvm(), t.count) }
+
+type structType struct {
+	types []Type
+}
+
+func StructType(types ...Type) Type { return structType{types} }
+func (t structType) llvm() string {
+	s := "{ "
+	for i, structType := range t.types {
+		s += structType.llvm()
+		if i < len(t.types)-1 {
+			s += ", "
+		}
+	}
+	s += " }"
+}
+
+type functionType interface {
+	returnType Type
+	argTypes []Type
+}
+
+func FunctionType(returnType Type, argTypes ...Type) Type { return functionType{returnType, argTypes} }

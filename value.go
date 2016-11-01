@@ -6,17 +6,16 @@ import "fmt"
 type Value interface {
 	Type() Type
 	llvm() string
-	valueType() // stops instruction satisfying the value interface
 }
 
 // Name reperesents a parameter or return value
-type Name struct {
-	t    Type
-	name string
+type name struct {
+	name     string
+	nameType Type
 }
 
-func newName(t Type, name string) Value {
-	return Value(Name{t, name})
+func Name(name string, nameType Type) Value {
+	return name{name, nameType}
 }
 
 // Name returns the name of the Name

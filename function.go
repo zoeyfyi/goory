@@ -5,10 +5,8 @@ type Function struct {
 	module     *Module
 	name       string
 	returnType Type
-	argTypes   []Type
-	args       []Value
+	args       []Argument
 	blocks     []*Block
-	value      Value
 }
 
 // NewFunction creates a new function with an entry block
