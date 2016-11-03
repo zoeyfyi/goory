@@ -120,7 +120,6 @@ func (b *Block) Mul(lhs Value, rhs Value) Instruction {
 	}
 
 	b.instructions = append(b.instructions, i)
-
 	return i
 }
 
@@ -133,7 +132,76 @@ func (b *Block) Div(lhs Value, rhs Value) Instruction {
 	}
 
 	b.instructions = append(b.instructions, i)
+	return i
+}
 
+type intCompareMode string
+
+const (
+	// IntEq is an integer equal comparision
+	IntEq intCompareMode = "eq"
+	// IntNe is an integer not equal comparision
+	IntNe intCompareMode = "ne"
+	// IntUgt is an unsigned integer greater than comparision
+	IntUgt intCompareMode = "ugt"
+	// IntUge is an unsigned integer greater than or equal comparision
+	IntUge intCompareMode = "uge"
+	// IntUlt is an unsigned integer less than comparision
+	IntUlt intCompareMode = "ult"
+	// IntUle is an unsigned integer less than or equal comparision
+	IntUle intCompareMode = "ule"
+	// IntSgt is an signed integer greater than comparision
+	IntSgt intCompareMode = "sgt"
+	// IntSge is an signed integer greater than or equal comparision
+	IntSge intCompareMode = "sge"
+	// IntSlt is an signed integer less than comparision
+	IntSlt intCompareMode = "slt"
+	// IntSle is an unsigned integer less than or equal comparision
+	IntSle intCompareMode = "sle"
+)
+
+// ICmp compares two integers
+func (b *Block) ICmp(mode intCompareMode, lhs Value, rhs Value) Instruction {
+	i := &icmp{
+		name: b.nextName(),
+		mode: mode,
+		lhs:  lhs,
+		rhs:  rhs,
+	}
+
+	b.instructions = append(b.instructions, i)
+	return i
+}
+
+type floatCompareMode string
+
+const (
+	FloatOeq floatCompareMode = "oeq"
+	FloatOgt floatCompareMode = "ogt"
+	FloatOge floatCompareMode = "oge"
+	FloatOlt floatCompareMode = "olt"
+	FloatOle floatCompareMode = "ole"
+	FloatOne floatCompareMode = "one"
+	FloatOrd floatCompareMode = "ord"
+	FloatUeq floatCompareMode = "ueq"
+	FloatUgt floatCompareMode = "ugt"
+	FloatUge floatCompareMode = "uge"
+	FloatUlt floatCompareMode = "ult"
+	FloatUle floatCompareMode = "ule"
+	FloatUne floatCompareMode = "une"
+	FloatUno floatCompareMode = "uno"
+)
+
+// FCmp compares two floats
+func (b *Block) FCmp(mode floatCompareMode, lhs Value, rhs Value) Instruction {
+	i := &fcmp{
+		name: b.nextName(),
+		mode: mode,
+		lhs:  lhs,
+		rhs:  rhs,
+	}
+
+	b.instructions = append(b.instructions, i)
 	return i
 }
 

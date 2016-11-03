@@ -12,7 +12,7 @@ type Instruction interface {
 }
 
 func binOpLlvm(instructionName string, ident string, lhs Value, rhs Value) string {
-	return fmt.Sprintf("%s = %s %s %s, %s",
+	return fmt.Sprintf("%%%s = %s %s %s, %s",
 		ident,
 		instructionName,
 		lhs.Type().llvm(),
@@ -123,6 +123,38 @@ func (i *div) IsTerminator() bool { return false }
 func (i *div) Type() Type         { return i.lhs.Type() }
 func (i *div) ident() string      { return "%" + i.name }
 func (i *div) llvm() string       { return binOpLlvm("div", i.name, i.lhs, i.rhs) }
+
+// Interger comparisons
+type icmp struct {
+	name string
+	mode intCompareMode
+	lhs  Value
+	rhs  Value
+}
+
+func (i *icmp) String() string     { return "icmp" }
+func (i *icmp) IsTerminator() bool { return false }
+func (i *icmp) Type() Type         { return i.lhs.Type() }
+func (i *icmp) ident() string      { return "%" + i.name }
+func (i *icmp) llvm() string {
+	return fmt.Sprintf("%%%s = icmp %s %s %s, %s", i.name, i.mode, i.Type().llvm(), i.lhs.ident(), i.rhs.ident())
+}
+
+// Float comparisons
+type fcmp struct {
+	name string
+	mode floatCompareMode
+	lhs  Value
+	rhs  Value
+}
+
+func (i *fcmp) String() string     { return "fcmp" }
+func (i *fcmp) IsTerminator() bool { return false }
+func (i *fcmp) Type() Type         { return i.lhs.Type() }
+func (i *fcmp) ident() string      { return "%" + i.name }
+func (i *fcmp) llvm() string {
+	return fmt.Sprintf("%%%s = fcmp %s %s %s, %s", i.name, i.mode, i.Type().llvm(), i.lhs.ident(), i.rhs.ident())
+}
 
 // Interger truncation
 type trunc struct {
@@ -270,14 +302,14 @@ func (i *call) llvm() string {
 	for opIndex, op := range i.operands {
 		arguments += fmt.Sprintf("%s %s",
 			op.Type().llvm(),
-			op.llvm())
+			op.ident())
 
 		if opIndex < len(i.operands)-1 {
 			arguments += ", "
 		}
 	}
 
-	return fmt.Sprintf("%s = call %s @%s(%s)",
+	return fmt.Sprintf("%%%s = call %s @%s(%s)",
 		i.name,
 		i.function.functionType.returnType.llvm(),
 		i.function.name,
@@ -310,7 +342,7 @@ func (i *condBr) Type() Type         { return NewVoidType() }
 func (i *condBr) ident() string      { return "%" + i.name }
 func (i *condBr) llvm() string {
 	return fmt.Sprintf("br i1 %s, label %%%s, label %%%s",
-		i.condition.llvm(),
+		i.condition.ident(),
 		i.trueBlock.name,
 		i.falseBlock.name)
 }

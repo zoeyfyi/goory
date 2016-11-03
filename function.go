@@ -12,17 +12,10 @@ type argument struct {
 }
 
 // Argument represents a function argument
-func Argument(argType Type, name string) argument {
-	return argument{argType, name}
-}
-
-func (v argument) Type() Type { return v.argType }
-
-func (v argument) llvm() string {
-	return fmt.Sprintf("%s %%%s", v.argType.llvm(), v.name)
-}
-
-func (v argument) ident() string { return "%" + v.name }
+func Argument(argType Type, name string) argument { return argument{argType, name} }
+func (v argument) Type() Type                     { return v.argType }
+func (v argument) llvm() string                   { return fmt.Sprintf("%s %%%s", v.argType.llvm(), v.name) }
+func (v argument) ident() string                  { return "%" + v.name }
 
 // ------------------------
 // Function
