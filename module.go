@@ -55,7 +55,7 @@ func (m *Module) LLVM() string {
 		}
 
 		s += fmt.Sprintf("define %s @%s(%s){\n",
-			f.Type().String(), f.name, argString)
+			f.Type().(types.FunctionType).ReturnType().String(), f.name, argString)
 
 		for _, b := range f.blocks {
 			s += "\t" + b.name + ":\n"

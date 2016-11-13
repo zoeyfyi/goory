@@ -70,7 +70,7 @@ func (i *Call) Llvm() string {
 
 	return fmt.Sprintf("%%%s = call %s %s(%s)",
 		i.name,
-		i.function.Type().String(),
+		i.function.Type().(types.FunctionType).ReturnType().String(),
 		i.function.Ident(),
 		arguments)
 }
