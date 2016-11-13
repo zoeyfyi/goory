@@ -1,0 +1,45 @@
+package instructions
+
+import (
+	"fmt"
+
+	"github.com/bongo227/goory/types"
+	"github.com/bongo227/goory/value"
+)
+
+type Insertvalue struct {
+	name     string
+	location value.Value
+	value    value.Value
+	position int
+}
+
+func NewInsertvalue(name string, location, value value.Value, position int) *Insertvalue {
+	return &Insertvalue{name, location, value, position}
+}
+
+func (i *Insertvalue) String() string {
+	return "insertvalue"
+}
+
+func (i *Insertvalue) IsTerminator() bool {
+	return false
+}
+
+func (i *Insertvalue) Type() types.Type {
+	return i.location.Type()
+}
+
+func (i *Insertvalue) Ident() string {
+	return "%" + i.name
+}
+
+func (i *Insertvalue) Llvm() string {
+	return fmt.Sprintf("%%%s = insertvalue %s %s, %s %s, %d",
+		i.name,
+		i.location.Type().String(),
+		i.location.Ident(),
+		i.value.Type().String(),
+		i.value.Ident(),
+		i.position)
+}

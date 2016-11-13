@@ -114,6 +114,16 @@ func (b *Block) Div(lhs, rhs value.Value) value.Value {
 	return i
 }
 
+// Extractvalue creates a new extract value instruction
+// location must be an aggregate type
+// position is the index at which to extract the value from location
+// Extractvalue returns the type specified in location at index position
+func (b *Block) Extractvalue(location value.Value, position int) value.Value {
+	i := instructions.NewExtractvalue(b.nextName(), location, position)
+	b.instructions = append(b.instructions, i)
+	return i
+}
+
 // Fadd creates a new float add instruction.
 // lhs and rhs must be float or double types.
 // Fadd returns the result of the instruction with the same type as lhs and rhs.
@@ -198,6 +208,17 @@ var (
 	// IntUlt is an integer unordered less than comparison
 	IntUlt = "ult"
 )
+
+// Insertvalue creates a new insert value instruction.
+// location must be an aggregate type the value is to be inserted into.
+// value must match the type of the location at index position.
+// position spesifys the index in which to insert value in location.
+// Insertvalue returns the result of the instruction with the same type as location.
+func (b *Block) Insertvalue(location, value value.Value, position int) value.Value {
+	i := instructions.NewInsertvalue(b.nextName(), location, value, position)
+	b.instructions = append(b.instructions, i)
+	return i
+}
 
 // Icmp creates a new integer comparison instruction.
 // mode controls the behavior of the comparison, see: https://godoc.org/github.com/bongo227/goory#pkg-variables.

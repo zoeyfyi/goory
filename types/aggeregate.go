@@ -5,6 +5,8 @@ import "fmt"
 // Aggregate is a type made up of atomic types
 type Aggregate interface {
 	String() string
+	Position(int) Type
+	Equal(n Type) bool
 }
 
 // arrayType is the type of llvm arrays
@@ -22,7 +24,22 @@ func (t ArrayType) String() string {
 	return fmt.Sprintf("[%s x %d]", t.baseType.String(), t.count)
 }
 
-// structType represents a collection of types
+// Position returns the type at position n
+func (t ArrayType) Position(n int) Type {
+	return t.baseType
+}
+
+// Equal checks if type n equals type t
+func (t ArrayType) Equal(n Type) bool {
+	arr, ok := n.(ArrayType)
+	if !ok {
+		return false
+	}
+
+	return t.baseType == arr.baseType && t.count == arr.count
+}
+
+// StructType represents a collection of types
 type StructType struct {
 	types []Type
 }
@@ -42,4 +59,25 @@ func (t StructType) String() string {
 	}
 
 	return s + " }"
+}
+
+// Position returns the type at position n
+func (t StructType) Position(n int) Type {
+	return t.types[n]
+}
+
+// Equal checks if type n equals type t
+func (t StructType) Equal(n Type) bool {
+	str, ok := n.(StructType)
+	if !ok {
+		return false
+	}
+
+	for i := 0; i < len(t.types); i++ {
+		if !t.types[i].Equal(str.types[i]) {
+			return false
+		}
+	}
+
+	return true
 }
