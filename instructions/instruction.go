@@ -16,17 +16,7 @@ type Instruction interface {
 	Ident() string
 }
 
-// Check type is atomic
-func assertAtomic(t types.Type) types.Atomic {
-	a, ok := t.(types.Atomic)
-	if !ok {
-		panic("Type is not an atomic type")
-	}
-
-	return a
-}
-
-// Check all types are the same
+// assertEqual checks all types are the same
 func assertEqual(t ...types.Type) {
 	if len(t) == 0 || len(t) == 1 {
 		return
