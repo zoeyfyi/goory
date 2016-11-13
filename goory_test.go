@@ -100,20 +100,20 @@ func TestExampleGcd(t *testing.T) {
 	expected := `define i32 @gcd(i32 %x, i32 %y){
 	entry:
 		%temp0 = icmp eq bool %x, %y
-		br i1 %temp0, label %temp1, label %temp3
+		br i1 %temp0, label %temp1, label %temp2
 	temp1:
 		ret i32 %x
-	temp3:
-		%temp4 = icmp ult bool %x, %y
-		br i1 %temp4, label %temp5, label %temp9
-	temp5:
-		%temp6 = sub i32 %y, %x
-		%temp7 = call i32 @gcd(i32 %x, i32 %temp6)
-		ret i32 %temp7
-	temp9:
-		%temp10 = sub i32 %x, %y
-		%temp11 = call i32 @gcd(i32 %temp10, i32 %y)
-		ret i32 %temp11
+	temp2:
+		%temp3 = icmp ult bool %x, %y
+		br i1 %temp3, label %temp4, label %temp7
+	temp4:
+		%temp5 = sub i32 %y, %x
+		%temp6 = call i32 @gcd(i32 %x, i32 %temp5)
+		ret i32 %temp6
+	temp7:
+		%temp8 = sub i32 %x, %y
+		%temp9 = call i32 @gcd(i32 %temp8, i32 %y)
+		ret i32 %temp9
 }`
 
 	if got != expected {
@@ -153,16 +153,16 @@ func TestExampleFibonaci(t *testing.T) {
 		%temp1 = icmp eq bool %n, 0
 		%temp2 = icmp eq bool %n, 1
 		%temp3 = or bool %temp1 %temp2
-		br i1 %temp3, label %temp0, label %temp5
+		br i1 %temp3, label %temp0, label %temp4
 	temp0:
 		ret i32 %n
-	temp5:
-		%temp6 = sub i32 %n, 1
-		%temp7 = call i32 @fib(i32 %temp6)
-		%temp8 = sub i32 %n, 2
-		%temp9 = call i32 @fib(i32 %temp8)
-		%temp10 = add i32 %temp7, %temp9
-		ret i32 %temp10
+	temp4:
+		%temp5 = sub i32 %n, 1
+		%temp6 = call i32 @fib(i32 %temp5)
+		%temp7 = sub i32 %n, 2
+		%temp8 = call i32 @fib(i32 %temp7)
+		%temp9 = add i32 %temp6, %temp8
+		ret i32 %temp9
 }`
 
 	if got != expected {

@@ -10,12 +10,11 @@ import (
 
 type Ret struct {
 	block value.Value
-	name  string
 	value value.Value
 }
 
-func NewRet(block value.Value, name string, value value.Value) *Ret {
-	return &Ret{block, name, value}
+func NewRet(block value.Value, value value.Value) *Ret {
+	return &Ret{block, value}
 }
 
 func (i *Ret) Block() value.Value {
@@ -31,7 +30,7 @@ func (i *Ret) Type() types.Type {
 }
 
 func (i *Ret) Ident() string {
-	return "%" + i.name
+	return ""
 }
 
 func (i *Ret) Llvm() string {

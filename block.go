@@ -247,10 +247,18 @@ func (b *Block) Or(lhs value.Value, rhs value.Value) *instructions.Or {
 	return i
 }
 
+// Phi creates a new phi instruction.
+// Phi returns the phi instruction to which you add all incoming blocks.
+func (b *Block) Phi() *instructions.Phi {
+	i := instructions.NewPhi(b, b.nextName())
+	b.instructions = append(b.instructions, i)
+	return i
+}
+
 // Ret creates a new return instruction.
 // value must be the same type as the function return type.
 func (b *Block) Ret(value value.Value) *instructions.Ret {
-	i := instructions.NewRet(b, b.nextName(), value)
+	i := instructions.NewRet(b, value)
 	b.instructions = append(b.instructions, i)
 	return i
 }
