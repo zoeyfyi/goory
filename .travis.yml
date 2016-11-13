@@ -1,3 +1,12 @@
 language: go
+
+secure: "j8t7WUYsjfGrmeNiV+yNKiooru5JdmOSR/86v/vLfHlpBCWKsLvZjHges+R28JfuUaX7alP1YPJsQ0F3l7M3JP7OaUwOJVYbIH45hjuCCVUQ3ZBeyvclDwZeaFSg9QSMvQphonzzXsfDOmSpEAOSnYqFQ9MDRFMh/RqK0Ih6VhOuiWtFCchRzDZY
+qTMBz6Xze7hmcfGOFBFU7UW43uZ8oavaxvF3v/ZkYTInWppkzu8qsXi9ryREMONOPG4NFrAhvcOFJO/iLIDB4fPrnoMj42+buN3boXT0xBB154noiy7yfAd4vpTnCtT/irZtxa1pBdtOwCDa40ccbuBwgLe8aGZevMYZNRQNyrL9PaFRVKcAxeGpYIMiEXKyx7o
+T5SYvw2tm0Pe4/vBLn3QON5ZYFjXAvMj9/P2sy9Qg58uUoCBHzAEhrt2rH0gh+MeHcLDghNDiNnxSA0WCkKWls4/ryULiBMI8Eq4e/1bkFnu+SQO8suDczjaRPMb9ZMYTD8Wm1dDQDrpkdmRViCy4FItX5PGI45ChYmLHipo4jxxPUvi/7pglXEbWUPpjxxCdZd
+mSpHp3V4dsdiC/e+MzTpt1cF820x1gv47+GVdbD4B8o5bF/WH+J4ajXMb6/IYYm5Fy4sjD3/qXyMK0KOyv86P2vHDThvod23aodKKxrlEHaEA="
+
 after_success:
-  - bash <(curl -s https://codecov.io/bash)
+  - go get golang.org/x/tools/cmd/cover
+  - go get github.com/mattn/goveralls
+  - go test -v -covermode=count -coverprofile=coverage.out
+  - $HOME/gopath/bin/goveralls -coverprofile=coverage.out -service=travis-ci -repotoken $COVERALLS_TOKEN
