@@ -1,6 +1,10 @@
 package goory
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/bongo227/goory/types"
+)
 
 // Module is a single compilation unit
 type Module struct {
@@ -31,8 +35,8 @@ func (m *Module) nextTempName() string {
 }
 
 // NewFunction adds a new function to module
-func (m *Module) NewFunction(name string, returnType Type, argTypes ...argument) *Function {
-	f := newFunction(m, name, returnType, argTypes...)
+func (m *Module) NewFunction(name string, returnType types.Type) *Function {
+	f := newFunction(m, name, returnType)
 	m.functions = append(m.functions, f)
 	return f
 }
@@ -41,26 +45,30 @@ func (m *Module) NewFunction(name string, returnType Type, argTypes ...argument)
 func (m *Module) LLVM() string {
 	s := ""
 
-	for _, f := range m.functions {
+	for findex, f := range m.functions {
 		argString := ""
 		for i, a := range f.args {
-			argString += a.llvm()
+			argString += a.String()
 			if i < len(f.args)-1 {
 				argString += ", "
 			}
 		}
 
 		s += fmt.Sprintf("define %s @%s(%s){\n",
-			f.functionType.returnType.llvm(), f.name, argString)
+			f.Type().String(), f.name, argString)
 
 		for _, b := range f.blocks {
 			s += "\t" + b.name + ":\n"
 			for _, i := range b.instructions {
-				s += "\t\t" + i.llvm() + "\n"
+				s += "\t\t" + i.Llvm() + "\n"
 			}
 		}
 
-		s += "}\n\n"
+		if findex == len(m.functions)-1 {
+			s += "}"
+		} else {
+			s += "}\n\n"
+		}
 	}
 
 	return s

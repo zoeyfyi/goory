@@ -1,43 +1,31 @@
 package goory
 
-import "fmt"
-
-// ------------------------
-// Function arguments
-// ------------------------
-
-type argument struct {
-	argType Type
-	name    string
-}
-
-// Argument represents a function argument
-func Argument(argType Type, name string) argument { return argument{argType, name} }
-func (v argument) Type() Type                     { return v.argType }
-func (v argument) llvm() string                   { return fmt.Sprintf("%s %%%s", v.argType.llvm(), v.name) }
-func (v argument) ident() string                  { return "%" + v.name }
-
-// ------------------------
-// Function
-// ------------------------
+import "github.com/bongo227/goory/types"
 
 // Function is a group of instructions that are executed is a new stack frame
 type Function struct {
-	module       *Module
-	name         string
-	functionType FunctionType
-	args         []argument
-	blocks       []*Block
+	module     *Module
+	name       string
+	returnType types.Type
+	args       []types.Arg
+	blocks     []*Block
+}
+
+// AddArgument adds a new parameter to the function
+func (f *Function) AddArgument(argType types.Type, name string) types.Arg {
+	arg := types.NewArg(argType, name)
+	f.args = append(f.args, arg)
+	return arg
 }
 
 // NewFunction creates a new function with an entry block
-func newFunction(module *Module, name string, returnType Type, arguments ...argument) *Function {
+func newFunction(module *Module, name string, returnType types.Type) *Function {
 	f := Function{
-		module:       module,
-		name:         name,
-		functionType: NewFunctionType(returnType, arguments...),
-		args:         arguments,
-		blocks:       []*Block{},
+		module:     module,
+		name:       name,
+		returnType: returnType,
+		args:       []types.Arg{},
+		blocks:     []*Block{},
 	}
 
 	// Create entry block
@@ -52,11 +40,23 @@ func (f *Function) Module() *Module { return f.module }
 // Name returns the function name
 func (f *Function) Name() string { return f.name }
 
+// String returns the function name
+func (f *Function) String() string { return "" }
+
+// Ident returns the function identifier
+func (f *Function) Ident() string { return "@" + f.name }
+
 // Type returns the function type
-func (f *Function) Type() FunctionType { return f.functionType }
+func (f *Function) Type() types.Type {
+	var args []types.Type
+	for _, a := range f.args {
+		args = append(args, a.Type())
+	}
+	return types.NewFunctionType(f.returnType, args...)
+}
 
 // Arguments returns the values of function arguments
-func (f *Function) Arguments() []argument { return f.args }
+func (f *Function) Arguments() []types.Arg { return f.args }
 
 // AddBlock adds a new block to the function
 func (f *Function) AddBlock() *Block {
