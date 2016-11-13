@@ -1,9 +1,10 @@
-package value
+package goory
 
 import (
 	"fmt"
 
 	"github.com/bongo227/goory/types"
+	"github.com/bongo227/goory/value"
 )
 
 type constant struct {
@@ -12,7 +13,7 @@ type constant struct {
 }
 
 // Constant reperesents a literal value
-func Constant(constantType types.Type, value interface{}) Value {
+func Constant(constantType types.Type, value interface{}) value.Value {
 	return constant{constantType, value}
 }
 
