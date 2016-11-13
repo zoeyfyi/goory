@@ -16,7 +16,7 @@ func (v Arg) Type() Type {
 	return v.argType
 }
 
-func (v Arg) String() string {
+func (v Arg) Llvm() string {
 	return fmt.Sprintf("%s %%%s", v.argType.String(), v.name)
 }
 

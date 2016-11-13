@@ -10,17 +10,18 @@ import (
 
 // Float to int
 type Fptosi struct {
+	block value.Value
 	name  string
 	value value.Value
 	cast  types.Type
 }
 
-func NewFptosi(name string, value value.Value, cast types.Type) *Fptosi {
-	return &Fptosi{name, value, cast}
+func NewFptosi(block value.Value, name string, value value.Value, cast types.Type) *Fptosi {
+	return &Fptosi{block, name, value, cast}
 }
 
-func (i *Fptosi) String() string {
-	return "fptosi"
+func (i *Fptosi) Block() value.Value {
+	return i.block
 }
 
 func (i *Fptosi) IsTerminator() bool {
@@ -39,6 +40,6 @@ func (i *Fptosi) Llvm() string {
 	return fmt.Sprintf("%s = fptosi %s %s to %s",
 		i.name,
 		i.value.Type().String(),
-		i.value.String(),
+		i.value.Llvm(),
 		i.cast.String())
 }

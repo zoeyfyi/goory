@@ -10,22 +10,22 @@ import (
 
 // Float addition
 type Fadd struct {
-	name string
+	block value.Value; name string
 	lhs  value.Value
 	rhs  value.Value
 }
 
-func NewFadd(name string, lhs value.Value, rhs value.Value) *Fadd {
+func NewFadd(block value.Value, name string, lhs value.Value, rhs value.Value) *Fadd {
 	assertEqual(lhs.Type(), rhs.Type())
 	if !lhs.Type().Equal(types.NewFloatType()) && !lhs.Type().Equal(types.NewDoubleType()) {
 		panic("Types are not float or double types")
 	}
 
-	return &Fadd{name, lhs, rhs}
+	return &Fadd{block, name, lhs, rhs}
 }
 
-func (i *Fadd) String() string {
-	return "fadd"
+func (i *Fadd) Block() value.Value {
+	return i.block
 }
 
 func (i *Fadd) IsTerminator() bool {

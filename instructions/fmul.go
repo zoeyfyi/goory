@@ -10,17 +10,17 @@ import (
 
 // Float multiplication
 type Fmul struct {
-	name string
+	block value.Value; name string
 	lhs  value.Value
 	rhs  value.Value
 }
 
-func NewFmul(name string, lhs, rhs value.Value) *Fmul {
-	return &Fmul{name, lhs, rhs}
+func NewFmul(block value.Value, name string, lhs, rhs value.Value) *Fmul {
+	return &Fmul{block, name, lhs, rhs}
 }
 
-func (i *Fmul) String() string {
-	return "fmul"
+func (i *Fmul) Block() value.Value {
+	return i.block
 }
 
 func (i *Fmul) IsTerminator() bool {

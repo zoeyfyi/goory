@@ -23,13 +23,13 @@ func (v global) Type() types.Type {
 	return v.globalType
 }
 
-func (v global) String() string {
+func (v global) Llvm() string {
 	globconst := "global"
 	if v.constant {
 		globconst = "constant"
 	}
 
-	return fmt.Sprintf("@%s = external %s %s %s", v.name, globconst, v.globalType.String(), v.initialValue.String())
+	return fmt.Sprintf("@%s = external %s %s %s", v.name, globconst, v.globalType.String(), v.initialValue.Llvm())
 }
 
 func (v global) Ident() string {

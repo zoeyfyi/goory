@@ -9,17 +9,17 @@ import (
 )
 
 type Mul struct {
-	name string
+	block value.Value; name string
 	lhs  value.Value
 	rhs  value.Value
 }
 
-func NewMul(name string, lhs value.Value, rhs value.Value) *Mul {
-	return &Mul{name, lhs, rhs}
+func NewMul(block value.Value, name string, lhs value.Value, rhs value.Value) *Mul {
+	return &Mul{block, name, lhs, rhs}
 }
 
-func (i *Mul) String() string {
-	return "mul"
+func (i *Mul) Block() value.Value {
+	return i.block
 }
 
 func (i *Mul) IsTerminator() bool {

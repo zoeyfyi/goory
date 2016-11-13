@@ -1,6 +1,10 @@
 package goory
 
-import "github.com/bongo227/goory/types"
+import (
+	"fmt"
+
+	"github.com/bongo227/goory/types"
+)
 
 // Function is a group of instructions that are executed is a new stack frame
 type Function struct {
@@ -40,8 +44,26 @@ func (f *Function) Module() *Module { return f.module }
 // Name returns the function name
 func (f *Function) Name() string { return f.name }
 
-// String returns the function name
-func (f *Function) String() string { return "" }
+// Llvm returns the llvm ir representation of the function
+func (f *Function) Llvm() string {
+	argString := ""
+	for i, a := range f.args {
+		argString += a.Llvm()
+		if i < len(f.args)-1 {
+			argString += ", "
+		}
+	}
+
+	s := fmt.Sprintf("define %s @%s(%s){\n",
+		f.Type().(types.FunctionType).ReturnType().String(), f.name, argString)
+
+	for _, b := range f.blocks {
+		s += b.Llvm()
+	}
+
+	s += "}"
+	return s
+}
 
 // Ident returns the function identifier
 func (f *Function) Ident() string { return "@" + f.name }

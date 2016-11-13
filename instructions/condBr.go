@@ -10,13 +10,13 @@ import (
 
 // Conditional Branch statement
 type CondBr struct {
-	name       string
+	block value.Value; name string
 	condition  value.Value
 	trueBlock  value.Value
 	falseBlock value.Value
 }
 
-func NewCondBr(name string, condition value.Value, trueBlock value.Value, falseBlock value.Value) *CondBr {
+func NewCondBr(block value.Value, name string, condition value.Value, trueBlock value.Value, falseBlock value.Value) *CondBr {
 	if !condition.Type().Equal(types.NewBoolType()) {
 		panic("condition is not a bool type")
 	}
@@ -29,11 +29,11 @@ func NewCondBr(name string, condition value.Value, trueBlock value.Value, falseB
 		panic("falseBlock is not a block type")
 	}
 
-	return &CondBr{name, condition, trueBlock, falseBlock}
+	return &CondBr{block, name, condition, trueBlock, falseBlock}
 }
 
-func (i *CondBr) String() string {
-	return "br"
+func (i *CondBr) Block() value.Value {
+	return i.block
 }
 
 func (i *CondBr) IsTerminator() bool {

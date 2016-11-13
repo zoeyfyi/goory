@@ -10,18 +10,18 @@ import (
 
 // Float comparisons
 type Fcmp struct {
-	name string
+	block value.Value; name string
 	mode string
 	lhs  value.Value
 	rhs  value.Value
 }
 
-func NewFcmp(name string, mode string, lhs value.Value, rhs value.Value) *Fcmp {
-	return &Fcmp{name, mode, lhs, rhs}
+func NewFcmp(block value.Value, name string, mode string, lhs value.Value, rhs value.Value) *Fcmp {
+	return &Fcmp{block, name, mode, lhs, rhs}
 }
 
-func (i *Fcmp) String() string {
-	return "fcmp"
+func (i *Fcmp) Block() value.Value {
+	return i.block
 }
 
 func (i *Fcmp) IsTerminator() bool {

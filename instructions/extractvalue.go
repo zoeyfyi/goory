@@ -8,17 +8,17 @@ import (
 )
 
 type Extractvalue struct {
-	name     string
+	block value.Value; name string
 	location value.Value
 	position int
 }
 
-func NewExtractvalue(name string, location value.Value, position int) *Extractvalue {
-	return &Extractvalue{name, location, position}
+func NewExtractvalue(block value.Value, name string, location value.Value, position int) *Extractvalue {
+	return &Extractvalue{block, name, location, position}
 }
 
-func (i *Extractvalue) String() string {
-	return "extractvalue"
+func (i *Extractvalue) Block() value.Value {
+	return i.block
 }
 
 func (i *Extractvalue) IsTerminator() bool {

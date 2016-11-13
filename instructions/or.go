@@ -10,17 +10,17 @@ import (
 
 // Bitwise or
 type Or struct {
-	name string
+	block value.Value; name string
 	lhs  value.Value
 	rhs  value.Value
 }
 
-func NewOr(name string, lhs, rhs value.Value) *Or {
-	return &Or{name, lhs, rhs}
+func NewOr(block value.Value, name string, lhs, rhs value.Value) *Or {
+	return &Or{block, name, lhs, rhs}
 }
 
-func (i *Or) String() string {
-	return "or"
+func (i *Or) Block() value.Value {
+	return i.block
 }
 
 func (i *Or) IsTerminator() bool {

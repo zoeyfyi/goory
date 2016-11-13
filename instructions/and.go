@@ -10,21 +10,20 @@ import (
 
 // And represents a bitwise And function
 type And struct {
-	name string
+	block value.Value; name string
 	lhs  value.Value
 	rhs  value.Value
 }
 
 // NewAnd creates a refrence to a new And instruction
-func NewAnd(name string, lhs value.Value, rhs value.Value) *And {
+func NewAnd(block value.Value, name string, lhs value.Value, rhs value.Value) *And {
 	assertEqual(lhs.Type(), rhs.Type())
 	lhs.Type().Equal(types.NewBoolType())
-	return &And{name, lhs, rhs}
+	return &And{block, name, lhs, rhs}
 }
 
-// String returns the function name 'and'
-func (i *And) String() string {
-	return "and"
+func (i *And) Block() value.Value {
+	return i.block
 }
 
 // IsTerminator returns false since and is not a block terminator

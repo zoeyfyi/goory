@@ -12,7 +12,7 @@ type nextName func() string
 type Block struct {
 	function     *Function
 	name         string
-	instructions []instructions.Instruction
+	instructions []value.Instruction
 	nextName     nextName
 }
 
@@ -34,9 +34,14 @@ func (b *Block) Name() string {
 	return b.name
 }
 
-// String gets the name of the block
-func (b *Block) String() string {
-	return b.name
+// Llvm returns the llvm ir representation of the block
+func (b *Block) Llvm() string {
+	s := "\t" + b.name + ":\n"
+	for _, i := range b.instructions {
+		s += "\t\t" + i.Llvm() + "\n"
+	}
+
+	return s
 }
 
 // Type returns new block type
@@ -54,19 +59,11 @@ func (b *Block) Terminated() bool {
 	return b.instructions[len(b.instructions)-1].IsTerminator()
 }
 
-func (b *Block) IsGlobal() bool {
-	return false
-}
-
-func (b *Block) IsBlock() bool {
-	return true
-}
-
 // Add creates a new add instruction.
 // lhs and rhs must be integer types of the same size.
 // Add returns the result of this instruction with the same type as lhs and rhs.
-func (b *Block) Add(lhs value.Value, rhs value.Value) value.Value {
-	i := instructions.NewAdd(b.nextName(), lhs, rhs)
+func (b *Block) Add(lhs value.Value, rhs value.Value) *instructions.Add {
+	i := instructions.NewAdd(b, b.nextName(), lhs, rhs)
 	b.instructions = append(b.instructions, i)
 	return i
 }
@@ -74,25 +71,26 @@ func (b *Block) Add(lhs value.Value, rhs value.Value) value.Value {
 // And create a new and instruction.
 // lhs and rhs must be boolean types.
 // And returns the result of the instruction as a boolean type.
-func (b *Block) And(lhs, rhs value.Value) value.Value {
-	i := instructions.NewAnd(b.nextName(), lhs, rhs)
+func (b *Block) And(lhs, rhs value.Value) *instructions.And {
+	i := instructions.NewAnd(b, b.nextName(), lhs, rhs)
 	b.instructions = append(b.instructions, i)
 	return i
 }
 
 // Br creates a new br instruction.
 // block must be a block type.
-func (b *Block) Br(block value.Value) {
-	i := instructions.NewBr(b.nextName(), block)
+func (b *Block) Br(block value.Value) *instructions.Br {
+	i := instructions.NewBr(b, b.nextName(), block)
 	b.instructions = append(b.instructions, i)
+	return i
 }
 
 // Call creates a new call instruction.
 // function must be a function type.
 // operands must match the types of the function arguments.
 // Call returns the result of the instruction with the same type as the function return type.
-func (b *Block) Call(function value.Value, operands ...value.Value) value.Value {
-	i := instructions.NewCall(b.nextName(), function, operands...)
+func (b *Block) Call(function value.Value, operands ...value.Value) *instructions.Call {
+	i := instructions.NewCall(b, b.nextName(), function, operands...)
 	b.instructions = append(b.instructions, i)
 	return i
 }
@@ -100,16 +98,17 @@ func (b *Block) Call(function value.Value, operands ...value.Value) value.Value 
 // CondBr creates a new conditional branch instruction.
 // condition must be a boolean type.
 // trueBlock and falseBlock must be block types.
-func (b *Block) CondBr(condition, trueBlock, falseBlock value.Value) {
-	i := instructions.NewCondBr(b.nextName(), condition, trueBlock, falseBlock)
+func (b *Block) CondBr(condition, trueBlock, falseBlock value.Value) *instructions.CondBr {
+	i := instructions.NewCondBr(b, b.nextName(), condition, trueBlock, falseBlock)
 	b.instructions = append(b.instructions, i)
+	return i
 }
 
 // Div creates a new integer division instruction.
 // lhs and rhs must be integer types.
 // Div returns the result of the instruction with the same type as lhs and rhs.
-func (b *Block) Div(lhs, rhs value.Value) value.Value {
-	i := instructions.NewDiv(b.nextName(), lhs, rhs)
+func (b *Block) Div(lhs, rhs value.Value) *instructions.Div {
+	i := instructions.NewDiv(b, b.nextName(), lhs, rhs)
 	b.instructions = append(b.instructions, i)
 	return i
 }
@@ -118,8 +117,8 @@ func (b *Block) Div(lhs, rhs value.Value) value.Value {
 // location must be an aggregate type
 // position is the index at which to extract the value from location
 // Extractvalue returns the type specified in location at index position
-func (b *Block) Extractvalue(location value.Value, position int) value.Value {
-	i := instructions.NewExtractvalue(b.nextName(), location, position)
+func (b *Block) Extractvalue(location value.Value, position int) *instructions.Extractvalue {
+	i := instructions.NewExtractvalue(b, b.nextName(), location, position)
 	b.instructions = append(b.instructions, i)
 	return i
 }
@@ -127,8 +126,8 @@ func (b *Block) Extractvalue(location value.Value, position int) value.Value {
 // Fadd creates a new float add instruction.
 // lhs and rhs must be float or double types.
 // Fadd returns the result of the instruction with the same type as lhs and rhs.
-func (b *Block) Fadd(lhs value.Value, rhs value.Value) value.Value {
-	i := instructions.NewFadd(b.nextName(), lhs, rhs)
+func (b *Block) Fadd(lhs value.Value, rhs value.Value) *instructions.Fadd {
+	i := instructions.NewFadd(b, b.nextName(), lhs, rhs)
 	b.instructions = append(b.instructions, i)
 	return i
 }
@@ -137,8 +136,8 @@ func (b *Block) Fadd(lhs value.Value, rhs value.Value) value.Value {
 // mode controls the behavior of the comparison, see https://godoc.org/github.com/bongo227/goory#pkg-variables.
 // lhs and rhs must be float or double types.
 // Fcmp returns the result of the instruction as a boolean type.
-func (b *Block) Fcmp(mode string, lhs, rhs value.Value) value.Value {
-	i := instructions.NewFcmp(b.nextName(), mode, lhs, rhs)
+func (b *Block) Fcmp(mode string, lhs, rhs value.Value) *instructions.Fcmp {
+	i := instructions.NewFcmp(b, b.nextName(), mode, lhs, rhs)
 	b.instructions = append(b.instructions, i)
 	return i
 }
@@ -146,8 +145,8 @@ func (b *Block) Fcmp(mode string, lhs, rhs value.Value) value.Value {
 // Fdiv creates a new float add instruction.
 // lhs and rhs must be float or double types.
 // Fdiv returns the result of the instruction with the same type as lhs and rhs.
-func (b *Block) Fdiv(lhs value.Value, rhs value.Value) value.Value {
-	i := instructions.NewFdiv(b.nextName(), lhs, rhs)
+func (b *Block) Fdiv(lhs value.Value, rhs value.Value) *instructions.Fdiv {
+	i := instructions.NewFdiv(b, b.nextName(), lhs, rhs)
 	b.instructions = append(b.instructions, i)
 	return i
 }
@@ -155,8 +154,8 @@ func (b *Block) Fdiv(lhs value.Value, rhs value.Value) value.Value {
 // Fmul creates a new float add instruction.
 // lhs and rhs must be float or double types.
 // Fmul returns the result of the instruction with the same type as lhs and rhs.
-func (b *Block) Fmul(lhs value.Value, rhs value.Value) value.Value {
-	i := instructions.NewFmul(b.nextName(), lhs, rhs)
+func (b *Block) Fmul(lhs value.Value, rhs value.Value) *instructions.Fmul {
+	i := instructions.NewFmul(b, b.nextName(), lhs, rhs)
 	b.instructions = append(b.instructions, i)
 	return i
 }
@@ -165,9 +164,9 @@ func (b *Block) Fmul(lhs value.Value, rhs value.Value) value.Value {
 // value must be a float or double type.
 // cast must be a type larger than value.
 // Fpext returns the result of the instruction with the same type as cast.
-func (b *Block) Fpext(value value.Value, cast types.Type) value.Value {
+func (b *Block) Fpext(value value.Value, cast types.Type) *instructions.Fpext {
 	// TODO: add support for fp128 etc
-	i := instructions.NewFpext(b.nextName(), value, cast)
+	i := instructions.NewFpext(b, b.nextName(), value, cast)
 	b.instructions = append(b.instructions, i)
 	return i
 }
@@ -176,8 +175,8 @@ func (b *Block) Fpext(value value.Value, cast types.Type) value.Value {
 // value must be a float of double type.
 // cast must be an integer type.
 // Fptosi returns the result of the instruction with the same type as cast.
-func (b *Block) Fptosi(value value.Value, cast types.Type) value.Value {
-	i := instructions.NewFptosi(b.nextName(), value, cast)
+func (b *Block) Fptosi(value value.Value, cast types.Type) *instructions.Fptosi {
+	i := instructions.NewFptosi(b, b.nextName(), value, cast)
 	b.instructions = append(b.instructions, i)
 	return i
 }
@@ -186,8 +185,8 @@ func (b *Block) Fptosi(value value.Value, cast types.Type) value.Value {
 // value must be a float or double type.
 // cast must be a type smaller than value.
 // Fptrunc returns the result of the instruction with the same type as cast.
-func (b *Block) Fptrunc(value value.Value, cast types.Type) value.Value {
-	i := instructions.NewFptrunc(b.nextName(), value, cast)
+func (b *Block) Fptrunc(value value.Value, cast types.Type) *instructions.Fptrunc {
+	i := instructions.NewFptrunc(b, b.nextName(), value, cast)
 	b.instructions = append(b.instructions, i)
 	return i
 }
@@ -195,8 +194,8 @@ func (b *Block) Fptrunc(value value.Value, cast types.Type) value.Value {
 // Fsub creates a new float subtraction instruction.
 // lhs and rhs must be float or double types.
 // Fsub returns the result of the instruction with the same type as lhs and rhs.
-func (b *Block) Fsub(lhs value.Value, rhs value.Value) value.Value {
-	i := instructions.NewFsub(b.nextName(), lhs, rhs)
+func (b *Block) Fsub(lhs value.Value, rhs value.Value) *instructions.Fsub {
+	i := instructions.NewFsub(b, b.nextName(), lhs, rhs)
 	b.instructions = append(b.instructions, i)
 	return i
 }
@@ -214,8 +213,8 @@ var (
 // value must match the type of the location at index position.
 // position spesifys the index in which to insert value in location.
 // Insertvalue returns the result of the instruction with the same type as location.
-func (b *Block) Insertvalue(location, value value.Value, position int) value.Value {
-	i := instructions.NewInsertvalue(b.nextName(), location, value, position)
+func (b *Block) Insertvalue(location, value value.Value, position int) *instructions.Insertvalue {
+	i := instructions.NewInsertvalue(b, b.nextName(), location, value, position)
 	b.instructions = append(b.instructions, i)
 	return i
 }
@@ -224,8 +223,8 @@ func (b *Block) Insertvalue(location, value value.Value, position int) value.Val
 // mode controls the behavior of the comparison, see: https://godoc.org/github.com/bongo227/goory#pkg-variables.
 // lhs and rhs must be integer types of the the same size.
 // Icmp returns the result of the instruction as a boolean type.
-func (b *Block) Icmp(mode string, lhs, rhs value.Value) value.Value {
-	i := instructions.NewIcmp(b.nextName(), mode, lhs, rhs)
+func (b *Block) Icmp(mode string, lhs, rhs value.Value) *instructions.Icmp {
+	i := instructions.NewIcmp(b, b.nextName(), mode, lhs, rhs)
 	b.instructions = append(b.instructions, i)
 	return i
 }
@@ -233,8 +232,8 @@ func (b *Block) Icmp(mode string, lhs, rhs value.Value) value.Value {
 // Mul creates a new integer multiplication instruction.
 // lhs and rhs must be integer types of the the same size.
 // Mul returns the result of the instruction with the same type as lhs and rhs.
-func (b *Block) Mul(lhs value.Value, rhs value.Value) value.Value {
-	i := instructions.NewMul(b.nextName(), lhs, rhs)
+func (b *Block) Mul(lhs value.Value, rhs value.Value) *instructions.Mul {
+	i := instructions.NewMul(b, b.nextName(), lhs, rhs)
 	b.instructions = append(b.instructions, i)
 	return i
 }
@@ -242,25 +241,26 @@ func (b *Block) Mul(lhs value.Value, rhs value.Value) value.Value {
 // Or creates a new bitwise or instruction.
 // lhs and rhs must be boolean types.
 // Or returns the result of the instruction as a boolean type.
-func (b *Block) Or(lhs value.Value, rhs value.Value) value.Value {
-	i := instructions.NewOr(b.nextName(), lhs, rhs)
+func (b *Block) Or(lhs value.Value, rhs value.Value) *instructions.Or {
+	i := instructions.NewOr(b, b.nextName(), lhs, rhs)
 	b.instructions = append(b.instructions, i)
 	return i
 }
 
 // Ret creates a new return instruction.
 // value must be the same type as the function return type.
-func (b *Block) Ret(value value.Value) {
-	i := instructions.NewRet(b.nextName(), value)
+func (b *Block) Ret(value value.Value) *instructions.Ret {
+	i := instructions.NewRet(b, b.nextName(), value)
 	b.instructions = append(b.instructions, i)
+	return i
 }
 
 // Sitofp creates a new signed integer to float instruction.
 // value must be an integer type.
 // cast must be a float type.
 // Sitofp returns the result of the instruction with the same type as cast.
-func (b *Block) Sitofp(value value.Value, cast types.Type) value.Value {
-	i := instructions.NewSitofp(b.nextName(), value, cast)
+func (b *Block) Sitofp(value value.Value, cast types.Type) *instructions.Sitofp {
+	i := instructions.NewSitofp(b, b.nextName(), value, cast)
 	b.instructions = append(b.instructions, i)
 	return i
 }
@@ -268,8 +268,8 @@ func (b *Block) Sitofp(value value.Value, cast types.Type) value.Value {
 // Sub creates a new float sub instruction.
 // lhs and rhs must be float or double types.
 // Sub retruns the result of the instruction with the same type as lhs and rhs.
-func (b *Block) Sub(lhs value.Value, rhs value.Value) value.Value {
-	i := instructions.NewSub(b.nextName(), lhs, rhs)
+func (b *Block) Sub(lhs value.Value, rhs value.Value) *instructions.Sub {
+	i := instructions.NewSub(b, b.nextName(), lhs, rhs)
 	b.instructions = append(b.instructions, i)
 	return i
 }
@@ -278,8 +278,8 @@ func (b *Block) Sub(lhs value.Value, rhs value.Value) value.Value {
 // value must be an integer type.
 // cast must be a integer type smaller than value.
 // Trunc returns the result of the instruction with the same type as cast.
-func (b *Block) Trunc(value value.Value, cast types.Type) value.Value {
-	i := instructions.NewTrunc(b.nextName(), value, cast)
+func (b *Block) Trunc(value value.Value, cast types.Type) *instructions.Trunc {
+	i := instructions.NewTrunc(b, b.nextName(), value, cast)
 	b.instructions = append(b.instructions, i)
 	return i
 }
@@ -287,8 +287,8 @@ func (b *Block) Trunc(value value.Value, cast types.Type) value.Value {
 // Xor creates a new float exclusive or instruction.
 // lhs and rhs must be boolean types.
 // Xor returns the result of the instruction as a boolean type.
-func (b *Block) Xor(lhs value.Value, rhs value.Value) value.Value {
-	i := instructions.NewXor(b.nextName(), lhs, rhs)
+func (b *Block) Xor(lhs value.Value, rhs value.Value) *instructions.Xor {
+	i := instructions.NewXor(b, b.nextName(), lhs, rhs)
 	b.instructions = append(b.instructions, i)
 	return i
 }
@@ -297,8 +297,8 @@ func (b *Block) Xor(lhs value.Value, rhs value.Value) value.Value {
 // value must be an integer type.
 // cast must be a integer type larger than value.
 // Zext returns the result of the instruction with the same type as cast.
-func (b *Block) Zext(value value.Value, cast types.Type) value.Value {
-	i := instructions.NewZext(b.nextName(), value, cast)
+func (b *Block) Zext(value value.Value, cast types.Type) *instructions.Zext {
+	i := instructions.NewZext(b, b.nextName(), value, cast)
 	b.instructions = append(b.instructions, i)
 	return i
 }

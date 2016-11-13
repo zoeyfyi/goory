@@ -9,17 +9,18 @@ import (
 )
 
 type Sitofp struct {
+	block value.Value
 	name  string
 	value value.Value
 	cast  types.Type
 }
 
-func NewSitofp(name string, value value.Value, cast types.Type) *Sitofp {
-	return &Sitofp{name, value, cast}
+func NewSitofp(block value.Value, name string, value value.Value, cast types.Type) *Sitofp {
+	return &Sitofp{block, name, value, cast}
 }
 
-func (i *Sitofp) String() string {
-	return "sitofp"
+func (i *Sitofp) Block() value.Value {
+	return i.block
 }
 
 func (i *Sitofp) IsTerminator() bool {
@@ -38,6 +39,6 @@ func (i *Sitofp) Llvm() string {
 	return fmt.Sprintf("%s = sitofp %s %s to %s",
 		i.name,
 		i.value.Type().String(),
-		i.value.String(),
+		i.value.Llvm(),
 		i.cast.String())
 }

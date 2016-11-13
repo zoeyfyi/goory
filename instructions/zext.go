@@ -9,17 +9,18 @@ import (
 )
 
 type Zext struct {
+	block value.Value
 	name  string
 	value value.Value
 	cast  types.Type
 }
 
-func NewZext(name string, value value.Value, cast types.Type) *Zext {
-	return &Zext{name, value, cast}
+func NewZext(block value.Value, name string, value value.Value, cast types.Type) *Zext {
+	return &Zext{block, name, value, cast}
 }
 
-func (i *Zext) String() string {
-	return "zext"
+func (i *Zext) Block() value.Value {
+	return i.block
 }
 
 func (i *Zext) IsTerminator() bool {
@@ -38,6 +39,6 @@ func (i *Zext) Llvm() string {
 	return fmt.Sprintf("%s = zext %s %s to %s",
 		i.name,
 		i.value.Type().String(),
-		i.value.String(),
+		i.value.Llvm(),
 		i.cast.String())
 }

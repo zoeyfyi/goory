@@ -9,17 +9,18 @@ import (
 )
 
 type Fpext struct {
+	block value.Value
 	name  string
 	value value.Value
 	cast  types.Type
 }
 
-func NewFpext(name string, value value.Value, cast types.Type) *Fpext {
-	return &Fpext{name, value, cast}
+func NewFpext(block value.Value, name string, value value.Value, cast types.Type) *Fpext {
+	return &Fpext{block, name, value, cast}
 }
 
-func (i *Fpext) String() string {
-	return "fpext"
+func (i *Fpext) Block() value.Value {
+	return i.block
 }
 
 func (i *Fpext) IsTerminator() bool {
@@ -38,6 +39,6 @@ func (i *Fpext) Llvm() string {
 	return fmt.Sprintf("%s = fpext %s %s to %s",
 		i.name,
 		i.value.Type().String(),
-		i.value.String(),
+		i.value.Llvm(),
 		i.cast.String())
 }

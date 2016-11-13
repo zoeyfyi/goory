@@ -46,28 +46,9 @@ func (m *Module) LLVM() string {
 	s := ""
 
 	for findex, f := range m.functions {
-		argString := ""
-		for i, a := range f.args {
-			argString += a.String()
-			if i < len(f.args)-1 {
-				argString += ", "
-			}
-		}
-
-		s += fmt.Sprintf("define %s @%s(%s){\n",
-			f.Type().(types.FunctionType).ReturnType().String(), f.name, argString)
-
-		for _, b := range f.blocks {
-			s += "\t" + b.name + ":\n"
-			for _, i := range b.instructions {
-				s += "\t\t" + i.Llvm() + "\n"
-			}
-		}
-
-		if findex == len(m.functions)-1 {
-			s += "}"
-		} else {
-			s += "}\n\n"
+		s += f.Llvm()
+		if findex != len(m.functions)-1 {
+			s += "\n\n"
 		}
 	}
 

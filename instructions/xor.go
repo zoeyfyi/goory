@@ -9,17 +9,17 @@ import (
 )
 
 type Xor struct {
-	name string
+	block value.Value; name string
 	lhs  value.Value
 	rhs  value.Value
 }
 
-func NewXor(name string, lhs, rhs value.Value) *Xor {
-	return &Xor{name, lhs, rhs}
+func NewXor(block value.Value, name string, lhs, rhs value.Value) *Xor {
+	return &Xor{block, name, lhs, rhs}
 }
 
-func (i *Xor) String() string {
-	return "xor"
+func (i *Xor) Block() value.Value {
+	return i.block
 }
 
 func (i *Xor) IsTerminator() bool {

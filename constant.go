@@ -17,7 +17,7 @@ func Constant(constantType types.Type, value interface{}) value.Value {
 	return constant{constantType, value}
 }
 
-func (v constant) String() string {
+func (v constant) Llvm() string {
 	return ""
 }
 

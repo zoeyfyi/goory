@@ -8,18 +8,18 @@ import (
 )
 
 type Insertvalue struct {
-	name     string
+	block value.Value; name string
 	location value.Value
 	value    value.Value
 	position int
 }
 
-func NewInsertvalue(name string, location, value value.Value, position int) *Insertvalue {
-	return &Insertvalue{name, location, value, position}
+func NewInsertvalue(block value.Value, name string, location, value value.Value, position int) *Insertvalue {
+	return &Insertvalue{block, name, location, value, position}
 }
 
-func (i *Insertvalue) String() string {
-	return "insertvalue"
+func (i *Insertvalue) Block() value.Value {
+	return i.block
 }
 
 func (i *Insertvalue) IsTerminator() bool {

@@ -9,17 +9,18 @@ import (
 )
 
 type Fptrunc struct {
+	block value.Value
 	name  string
 	value value.Value
 	cast  types.Type
 }
 
-func NewFptrunc(name string, value value.Value, cast types.Type) *Fptrunc {
-	return &Fptrunc{name, value, cast}
+func NewFptrunc(block value.Value, name string, value value.Value, cast types.Type) *Fptrunc {
+	return &Fptrunc{block, name, value, cast}
 }
 
-func (i *Fptrunc) String() string {
-	return "fptrunc"
+func (i *Fptrunc) Block() value.Value {
+	return i.block
 }
 
 func (i *Fptrunc) IsTerminator() bool {
@@ -38,6 +39,6 @@ func (i *Fptrunc) Llvm() string {
 	return fmt.Sprintf("%s = fptrunc %s %s to %s",
 		i.name,
 		i.value.Type().String(),
-		i.value.String(),
+		i.value.Llvm(),
 		i.cast.String())
 }

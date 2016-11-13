@@ -9,10 +9,6 @@ func NewNone() *None {
 	return &None{}
 }
 
-func (i *None) String() string {
-	return ""
-}
-
 func (i *None) IsTerminator() bool {
 	return false
 }

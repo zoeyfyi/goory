@@ -10,18 +10,19 @@ import (
 
 // Interger comparisons
 type Icmp struct {
-	name string
-	mode string
-	lhs  value.Value
-	rhs  value.Value
+	block value.Value
+	name  string
+	mode  string
+	lhs   value.Value
+	rhs   value.Value
 }
 
-func NewIcmp(name, mode string, lhs, rhs value.Value) *Icmp {
-	return &Icmp{name, mode, lhs, rhs}
+func NewIcmp(block value.Value, name, mode string, lhs, rhs value.Value) *Icmp {
+	return &Icmp{block, name, mode, lhs, rhs}
 }
 
-func (i *Icmp) String() string {
-	return "icmp"
+func (i *Icmp) Block() value.Value {
+	return i.block
 }
 
 func (i *Icmp) IsTerminator() bool {

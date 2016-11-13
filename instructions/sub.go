@@ -10,17 +10,17 @@ import (
 
 // Interger subtruction
 type Sub struct {
-	name string
+	block value.Value; name string
 	lhs  value.Value
 	rhs  value.Value
 }
 
-func NewSub(name string, lhs, rhs value.Value) *Sub {
-	return &Sub{name, lhs, rhs}
+func NewSub(block value.Value, name string, lhs, rhs value.Value) *Sub {
+	return &Sub{block, name, lhs, rhs}
 }
 
-func (i *Sub) String() string {
-	return "sub"
+func (i *Sub) Block() value.Value {
+	return i.block
 }
 
 func (i *Sub) IsTerminator() bool {

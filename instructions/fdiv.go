@@ -10,17 +10,17 @@ import (
 
 // Float division
 type Fdiv struct {
-	name string
+	block value.Value; name string
 	lhs  value.Value
 	rhs  value.Value
 }
 
-func NewFdiv(name string, lhs value.Value, rhs value.Value) *Fdiv {
-	return &Fdiv{name, lhs, rhs}
+func NewFdiv(block value.Value, name string, lhs value.Value, rhs value.Value) *Fdiv {
+	return &Fdiv{block, name, lhs, rhs}
 }
 
-func (i *Fdiv) String() string {
-	return "fdiv"
+func (i *Fdiv) Block() value.Value {
+	return i.block
 }
 
 func (i *Fdiv) IsTerminator() bool {

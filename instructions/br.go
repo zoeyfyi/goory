@@ -10,17 +10,18 @@ import (
 
 // Branch statement
 type Br struct {
-	name  string
-	block value.Value
+	block  value.Value
+	name   string
+	branch value.Value
 }
 
-func NewBr(name string, block value.Value) *Br {
+func NewBr(block value.Value, name string, branch value.Value) *Br {
 	block.Type().Equal(types.NewBlockType())
-	return &Br{name, block}
+	return &Br{block, name, branch}
 }
 
-func (i *Br) String() string {
-	return "br"
+func (i *Br) Block() value.Value {
+	return i.block
 }
 
 func (i *Br) IsTerminator() bool {
@@ -36,5 +37,5 @@ func (i *Br) Ident() string {
 }
 
 func (i *Br) Llvm() string {
-	return fmt.Sprintf("br label %%%s", i.block.Ident())
+	return fmt.Sprintf("br label %%%s", i.branch.Ident())
 }

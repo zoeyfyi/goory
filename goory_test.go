@@ -47,8 +47,7 @@ func TestExampleMulAdd(t *testing.T) {
 
 		block := function.Entry()
 
-		result := block.Mul(x, y)
-		result = block.Add(result, z)
+		result := block.Add(block.Mul(x, y), z)
 		block.Ret(result)
 	}
 

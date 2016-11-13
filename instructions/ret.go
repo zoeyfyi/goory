@@ -9,16 +9,17 @@ import (
 )
 
 type Ret struct {
+	block value.Value
 	name  string
 	value value.Value
 }
 
-func NewRet(name string, value value.Value) *Ret {
-	return &Ret{name, value}
+func NewRet(block value.Value, name string, value value.Value) *Ret {
+	return &Ret{block, name, value}
 }
 
-func (i *Ret) String() string {
-	return "ret"
+func (i *Ret) Block() value.Value {
+	return i.block
 }
 
 func (i *Ret) IsTerminator() bool {

@@ -10,12 +10,12 @@ import (
 
 // Call statement
 type Call struct {
-	name     string
+	block value.Value; name string
 	function value.Value
 	operands []value.Value
 }
 
-func NewCall(name string, function value.Value, operands ...value.Value) *Call {
+func NewCall(block value.Value, name string, function value.Value, operands ...value.Value) *Call {
 	fType := assertFunction(function.Type())
 	var types []types.Type
 	for _, o := range operands {
@@ -37,11 +37,11 @@ func NewCall(name string, function value.Value, operands ...value.Value) *Call {
 		}
 	}
 
-	return &Call{name, function, operands}
+	return &Call{block, name, function, operands}
 }
 
-func (i *Call) String() string {
-	return "call"
+func (i *Call) Block() value.Value {
+	return i.block
 }
 
 func (i *Call) IsTerminator() bool {

@@ -9,20 +9,21 @@ import (
 )
 
 type Add struct {
-	name string
-	lhs  value.Value
-	rhs  value.Value
+	block value.Value
+	name  string
+	lhs   value.Value
+	rhs   value.Value
 }
 
 // NewAdd creates a new Add operation
-func NewAdd(name string, lhs value.Value, rhs value.Value) *Add {
+func NewAdd(block value.Value, name string, lhs value.Value, rhs value.Value) *Add {
 	assertEqual(lhs.Type(), rhs.Type())
 	assertInt(lhs.Type())
-	return &Add{name, lhs, rhs}
+	return &Add{block, name, lhs, rhs}
 }
 
-func (i *Add) String() string {
-	return "add"
+func (i *Add) Block() value.Value {
+	return i.block
 }
 
 func (i *Add) IsTerminator() bool {

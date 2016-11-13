@@ -10,18 +10,18 @@ import (
 
 // Interger division
 type Div struct {
-	name string
+	block value.Value; name string
 	lhs  value.Value
 	rhs  value.Value
 }
 
 // NewDiv creates a new integer division instruction
-func NewDiv(name string, lhs value.Value, rhs value.Value) *Div {
-	return &Div{name, lhs, rhs}
+func NewDiv(block value.Value, name string, lhs value.Value, rhs value.Value) *Div {
+	return &Div{block, name, lhs, rhs}
 }
 
-func (i *Div) String() string {
-	return "div"
+func (i *Div) Block() value.Value {
+	return i.block
 }
 
 func (i *Div) IsTerminator() bool {
