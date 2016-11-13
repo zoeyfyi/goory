@@ -49,7 +49,7 @@ func (i *Call) IsTerminator() bool {
 }
 
 func (i *Call) Type() types.Type {
-	return i.function.Type()
+	return i.function.Type().(types.FunctionType).ReturnType()
 }
 
 func (i *Call) Ident() string {

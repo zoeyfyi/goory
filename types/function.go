@@ -17,6 +17,10 @@ func (t FunctionType) Arguments() []Type {
 	return t.argTypes
 }
 
+func (t FunctionType) ReturnType() Type {
+	return t.returnType
+}
+
 func (t FunctionType) Equal(n Type) bool {
 	if nf, ok := n.(FunctionType); ok {
 		if !nf.returnType.Equal(t.returnType) {
