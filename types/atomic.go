@@ -6,6 +6,7 @@ import "fmt"
 type Atomic interface {
 	String() string
 	Bits() int
+	Equal(n Type) bool
 }
 
 // intType is the type of llvm integers
