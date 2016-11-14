@@ -117,7 +117,7 @@ func (b *Block) Div(lhs, rhs value.Value) *instructions.Div {
 // location must be an aggregate type
 // position is the index at which to extract the value from location
 // Extractvalue returns the type specified in location at index position
-func (b *Block) Extractvalue(location value.Value, position int) *instructions.Extractvalue {
+func (b *Block) Extractvalue(location value.Value, position value.Value) *instructions.Extractvalue {
 	i := instructions.NewExtractvalue(b, b.nextName(), location, position)
 	b.instructions = append(b.instructions, i)
 	return i
@@ -131,6 +131,20 @@ func (b *Block) Fadd(lhs value.Value, rhs value.Value) *instructions.Fadd {
 	b.instructions = append(b.instructions, i)
 	return i
 }
+
+var (
+	// FloatOeq is a float ordered equal comparison
+	FloatOeq = "oeq"
+		
+	// FloatOlt is a float ordered less than comparison
+	FloatOlt = "olt"
+	
+	// Float One is a float ordered not equals comparison
+	FloatOne = "one"
+	
+	// FloatOgt is a float ordered greater than comparison
+	FloatOgt = "ogt"
+)
 
 // Fcmp creates a new float add instruction.
 // mode controls the behavior of the comparison, see https://godoc.org/github.com/bongo227/goory#pkg-variables.
@@ -204,8 +218,20 @@ var (
 	// IntEq is an integer equals comparison
 	IntEq = "eq"
 
-	// IntUlt is an integer unordered less than comparison
+	// IntNe is an integer not equals comparison
+	IntNe = "ne"
+	
+	// IntUlt is an integer unsigned less than comparison
 	IntUlt = "ult"
+	
+	// IntSlt is an integer signed less than comparison
+	IntSlt = "slt"
+	
+	// IntUgt is an integer unsigned greater than comparison
+	IntUgt = "ugt"
+	
+	// IntSgt is an integer signed greater than comparison
+	IntSgt = "sgt"
 )
 
 // Insertvalue creates a new insert value instruction.
@@ -213,7 +239,7 @@ var (
 // value must match the type of the location at index position.
 // position spesifys the index in which to insert value in location.
 // Insertvalue returns the result of the instruction with the same type as location.
-func (b *Block) Insertvalue(location, value value.Value, position int) *instructions.Insertvalue {
+func (b *Block) Insertvalue(location, value value.Value, position value.Value) *instructions.Insertvalue {
 	i := instructions.NewInsertvalue(b, b.nextName(), location, value, position)
 	b.instructions = append(b.instructions, i)
 	return i
@@ -310,3 +336,66 @@ func (b *Block) Zext(value value.Value, cast types.Type) *instructions.Zext {
 	b.instructions = append(b.instructions, i)
 	return i
 }
+
+// Cast creates a cast for value to type cast
+func (b *Block) Cast(value value.Value, cast types.Type) value.Value {
+	atomicCast, isAtomicCast := cast.(types.Atomic)
+	if !isAtomicCast {
+		panic("Cast is not atomic")
+	}
+	
+	atomic, isAtomic := value.Type().(types.Atomic)	
+	if !isAtomic {
+		panic("Value is not an atomic type")
+	}
+
+	// Value type is the same as cast type so return the value
+	if atomic.Equal(atomicCast) {
+		return value
+	}
+
+	// Cast integer to integer
+	if types.IsInteger(atomic) && types.IsInteger(atomicCast) {
+		if types.Compare(atomic, atomicCast) == -1 {
+			// Cast is bigger so expand value
+			i := instructions.NewZext(b, b.nextName(), value, atomicCast)
+			b.instructions = append(b.instructions, i)
+			return i
+		}
+		// Cast is smaller so truncate value
+		i := instructions.NewTrunc(b, b.nextName(), value, atomicCast)
+		b.instructions = append(b.instructions, i)
+		return i
+	}
+
+	// Cast float to float
+	if types.IsFp(atomic) && types.IsFp(atomicCast){
+		if types.Compare(atomic, atomicCast) == -1 {
+			// Cast is bigger so expand value
+			i := instructions.NewFpext(b, b.nextName(), value, atomicCast)
+			b.instructions = append(b.instructions, i)
+			return i
+		}
+		// Cast is smaller so truncate value
+		i := instructions.NewFptrunc(b, b.nextName(), value, atomicCast)
+		b.instructions = append(b.instructions, i)
+		return i
+	}
+
+	// Cast integer to float
+	if types.IsInteger(atomic) && types.IsFp(atomicCast) {
+		i := instructions.NewSitofp(b, b.nextName(), value, atomicCast)
+		b.instructions = append(b.instructions, i)
+		return i
+	}
+
+	// Cast float to integer
+	if types.IsFp(atomic) && types.IsInteger(atomicCast) {
+		i := instructions.NewFptosi(b, b.nextName(), value, atomicCast)
+		b.instructions = append(b.instructions, i)
+		return i
+	}
+
+	panic("Cannot cast non integer or pointer value")
+}
+
