@@ -99,12 +99,12 @@ func TestExampleGcd(t *testing.T) {
 	got := module.LLVM()
 	expected := `define i32 @gcd(i32 %x, i32 %y){
 	entry:
-		%temp0 = icmp eq bool %x, %y
+		%temp0 = icmp eq i32 %x, %y
 		br i1 %temp0, label %temp1, label %temp2
 	temp1:
 		ret i32 %x
 	temp2:
-		%temp3 = icmp ult bool %x, %y
+		%temp3 = icmp ult i32 %x, %y
 		br i1 %temp3, label %temp4, label %temp7
 	temp4:
 		%temp5 = sub i32 %y, %x
@@ -150,8 +150,8 @@ func TestExampleFibonaci(t *testing.T) {
 	got := module.LLVM()
 	expected := `define i32 @fib(i32 %n){
 	entry:
-		%temp1 = icmp eq bool %n, 0
-		%temp2 = icmp eq bool %n, 1
+		%temp1 = icmp eq i32 %n, 0
+		%temp2 = icmp eq i32 %n, 1
 		%temp3 = or bool %temp1 %temp2
 		br i1 %temp3, label %temp0, label %temp4
 	temp0:
