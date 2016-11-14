@@ -22,7 +22,12 @@ func (v constant) Llvm() string {
 }
 
 func (v constant) Ident() string {
-	return fmt.Sprintf("%v", v.value)
+	switch v.value.(type) {
+	case float32, float64:
+		return fmt.Sprintf("%f", v.value)
+	default:
+		return fmt.Sprintf("%v", v.value)
+	}
 }
 
 func (v constant) Type() types.Type {
