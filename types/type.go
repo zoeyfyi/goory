@@ -21,3 +21,14 @@ func Compare(a Atomic, b Atomic) int {
 
 	return -1
 }
+
+func IsInteger(a Type) bool {
+	_, ok := a.(IntType)
+	return ok
+}
+
+func IsFp(a Type) bool {
+	_, okFloat := a.(FloatType)
+	_, okDouble := a.(DoubleType)
+	return okFloat || okDouble
+}
