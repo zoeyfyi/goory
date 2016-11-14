@@ -10,11 +10,16 @@ import (
 type Phi struct {
 	block    value.Value
 	name     string
-	incoming []value.Instruction
+	incoming []phiNode
+}
+
+type phiNode struct {
+	value value.Value
+	block value.Value
 }
 
 func NewPhi(block value.Value, name string) *Phi {
-	return &Phi{block, name, []value.Instruction{}}
+	return &Phi{block, name, []phiNode{}}
 }
 
 func (i *Phi) Block() value.Value {
@@ -26,7 +31,7 @@ func (i *Phi) IsTerminator() bool {
 }
 
 func (i *Phi) Type() types.Type {
-	return i.incoming[0].Type()
+	return i.incoming[0].value.Type()
 }
 
 func (i *Phi) Ident() string {
@@ -34,13 +39,20 @@ func (i *Phi) Ident() string {
 }
 
 func (i *Phi) AddIncoming(value value.Instruction) {
-	i.incoming = append(i.incoming, value)
+	i.incoming = append(i.incoming, phiNode{value, value.Block()})
+}
+
+func (i *Phi) AddIncomingConst(value value.Value, block value.Value) {
+	i.incoming = append(i.incoming, phiNode{value, block})
 }
 
 func (i *Phi) Llvm() string {
-	s := fmt.Sprintf("%%%s = phi %s ", i.name, i.incoming[0].Type().String())
+	s := fmt.Sprintf("%%%s = phi %s ", 
+		 i.name, 
+		 i.Type().String())
+	
 	for incomingIndex, incoming := range i.incoming {
-		s += fmt.Sprintf("[ %s %s ]", incoming.Ident(), incoming.Block().Ident())
+		s += fmt.Sprintf("[ %s %s ]", incoming.value.Ident(), incoming.block.Ident())
 		if incomingIndex < len(i.incoming)-1 {
 			s += ", "
 		}

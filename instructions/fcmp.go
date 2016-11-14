@@ -37,5 +37,10 @@ func (i *Fcmp) Ident() string {
 }
 
 func (i *Fcmp) Llvm() string {
-	return fmt.Sprintf("%%%s = fcmp %s %s %s, %s", i.name, i.mode, i.Type().String(), i.lhs.Ident(), i.rhs.Ident())
+	return fmt.Sprintf("%%%s = fcmp %s %s %s, %s", 
+		i.name, 
+		i.mode, 
+		i.lhs.Type().String(), 
+		i.lhs.Ident(), 
+		i.rhs.Ident())
 }

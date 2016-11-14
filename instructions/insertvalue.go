@@ -11,10 +11,10 @@ type Insertvalue struct {
 	block value.Value; name string
 	location value.Value
 	value    value.Value
-	position int
+	position value.Value
 }
 
-func NewInsertvalue(block value.Value, name string, location, value value.Value, position int) *Insertvalue {
+func NewInsertvalue(block value.Value, name string, location, value value.Value, position value.Value) *Insertvalue {
 	return &Insertvalue{block, name, location, value, position}
 }
 
@@ -35,11 +35,11 @@ func (i *Insertvalue) Ident() string {
 }
 
 func (i *Insertvalue) Llvm() string {
-	return fmt.Sprintf("%%%s = insertvalue %s %s, %s %s, %d",
+	return fmt.Sprintf("%%%s = insertvalue %s %s, %s %s, %s",
 		i.name,
 		i.location.Type().String(),
 		i.location.Ident(),
 		i.value.Type().String(),
 		i.value.Ident(),
-		i.position)
+	 	i.position.Ident())
 }

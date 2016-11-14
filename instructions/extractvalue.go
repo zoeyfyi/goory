@@ -10,10 +10,10 @@ import (
 type Extractvalue struct {
 	block value.Value; name string
 	location value.Value
-	position int
+	position value.Value
 }
 
-func NewExtractvalue(block value.Value, name string, location value.Value, position int) *Extractvalue {
+func NewExtractvalue(block value.Value, name string, location value.Value, position value.Value) *Extractvalue {
 	return &Extractvalue{block, name, location, position}
 }
 
@@ -26,7 +26,7 @@ func (i *Extractvalue) IsTerminator() bool {
 }
 
 func (i *Extractvalue) Type() types.Type {
-	return i.location.Type().(types.Aggregate).Position(i.position)
+	return i.location.Type().(types.Aggregate).Position(0)
 }
 
 func (i *Extractvalue) Ident() string {
@@ -34,9 +34,9 @@ func (i *Extractvalue) Ident() string {
 }
 
 func (i *Extractvalue) Llvm() string {
-	return fmt.Sprintf("%%%s = extractvalue %s %s, %d",
+	return fmt.Sprintf("%%%s = extractvalue %s %s, %s",
 		i.name,
 		i.location.Type().String(),
 		i.location.Ident(),
-		i.position)
+		i.position.Ident())
 }

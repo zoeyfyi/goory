@@ -1,3 +1,4 @@
+
 package instructions
 
 import (
@@ -38,5 +39,10 @@ func (i *Icmp) Ident() string {
 }
 
 func (i *Icmp) Llvm() string {
-	return fmt.Sprintf("%%%s = icmp %s %s %s, %s", i.name, i.mode, i.Type().String(), i.lhs.Ident(), i.rhs.Ident())
+	return fmt.Sprintf("%%%s = icmp %s %s %s, %s", 
+		 i.name, 
+		 i.mode, 
+		 i.lhs.Type().String(), 
+		 i.lhs.Ident(), 
+		 i.rhs.Ident())
 }

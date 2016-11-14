@@ -36,9 +36,9 @@ func (i *Zext) Ident() string {
 }
 
 func (i *Zext) Llvm() string {
-	return fmt.Sprintf("%s = zext %s %s to %s",
+	return fmt.Sprintf("%%%s = zext %s %s to %s",
 		i.name,
 		i.value.Type().String(),
-		i.value.Llvm(),
+		i.value.Ident(),
 		i.cast.String())
 }
