@@ -122,6 +122,33 @@ func TestExampleGcd(t *testing.T) {
 
 }
 
+func TestExampleAlloc(t *testing.T) {
+	module := goory.NewModule("test")
+	integer := goory.IntType(32)
+	{
+		function := module.NewFunction("allocFun", integer)
+
+		block := function.Entry()
+
+		newInt := block.Alloca(integer)
+		block.Store(newInt, goory.Constant(integer, 100))
+		block.Ret(block.Load(newInt))
+	}
+
+	got := module.LLVM()
+	expected := `define i32 @allocFun(){
+	entry:
+		%temp0 = alloca i32
+		store i32 100, i32* %temp0
+		%temp1 = load i32, i32* %temp0
+		ret i32 %temp1
+}`
+
+	if got != expected {
+		t.Errorf("Expected:\n%s\nGot:\n%s", expected, got)
+	}
+}
+
 func TestExampleFibonaci(t *testing.T) {
 	integer := goory.IntType(32)
 	module := goory.NewModule("test")

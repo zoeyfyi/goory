@@ -68,6 +68,16 @@ func (b *Block) Add(lhs value.Value, rhs value.Value) *instructions.Add {
 	return i
 }
 
+// Alloca creates a new alloca instruction.
+// type is the type you want to allocate space for.
+// Call SetNumber to set the number of elements to allocate for (default 1)
+// Alloca returns the result of this instruction as a pointer with the same type as base type.
+func (b *Block) Alloca(base types.Type) *instructions.Alloca {
+	i := instructions.NewAlloca(b, b.nextName(), base)
+	b.instructions = append(b.instructions, i)
+	return i
+}
+
 // And create a new and instruction.
 // lhs and rhs must be boolean types.
 // And returns the result of the instruction as a boolean type.
@@ -135,13 +145,13 @@ func (b *Block) Fadd(lhs value.Value, rhs value.Value) *instructions.Fadd {
 var (
 	// FloatOeq is a float ordered equal comparison
 	FloatOeq = "oeq"
-		
+
 	// FloatOlt is a float ordered less than comparison
 	FloatOlt = "olt"
-	
+
 	// Float One is a float ordered not equals comparison
 	FloatOne = "one"
-	
+
 	// FloatOgt is a float ordered greater than comparison
 	FloatOgt = "ogt"
 )
@@ -220,16 +230,16 @@ var (
 
 	// IntNe is an integer not equals comparison
 	IntNe = "ne"
-	
+
 	// IntUlt is an integer unsigned less than comparison
 	IntUlt = "ult"
-	
+
 	// IntSlt is an integer signed less than comparison
 	IntSlt = "slt"
-	
+
 	// IntUgt is an integer unsigned greater than comparison
 	IntUgt = "ugt"
-	
+
 	// IntSgt is an integer signed greater than comparison
 	IntSgt = "sgt"
 )
@@ -251,6 +261,14 @@ func (b *Block) Insertvalue(location, value value.Value, position value.Value) *
 // Icmp returns the result of the instruction as a boolean type.
 func (b *Block) Icmp(mode string, lhs, rhs value.Value) *instructions.Icmp {
 	i := instructions.NewIcmp(b, b.nextName(), mode, lhs, rhs)
+	b.instructions = append(b.instructions, i)
+	return i
+}
+
+// Load creates a new load instruction.
+// Load returns the result of the instruction with the same type as the allocation.
+func (b *Block) Load(allocation *instructions.Alloca) *instructions.Load {
+	i := instructions.NewLoad(b, b.nextName(), allocation)
 	b.instructions = append(b.instructions, i)
 	return i
 }
@@ -299,6 +317,14 @@ func (b *Block) Sitofp(value value.Value, cast types.Type) *instructions.Sitofp 
 	return i
 }
 
+// Store creates a new store instruction.
+// value must be the same type as the allocation.
+// Store retruns the result of the instruction with the same type as lhs and rhs.
+func (b *Block) Store(allocation *instructions.Alloca, value value.Value) {
+	i := instructions.NewStore(b, allocation, value)
+	b.instructions = append(b.instructions, i)
+}
+
 // Sub creates a new float sub instruction.
 // lhs and rhs must be float or double types.
 // Sub retruns the result of the instruction with the same type as lhs and rhs.
@@ -343,8 +369,8 @@ func (b *Block) Cast(value value.Value, cast types.Type) value.Value {
 	if !isAtomicCast {
 		panic("Cast is not atomic")
 	}
-	
-	atomic, isAtomic := value.Type().(types.Atomic)	
+
+	atomic, isAtomic := value.Type().(types.Atomic)
 	if !isAtomic {
 		panic("Value is not an atomic type")
 	}
@@ -369,7 +395,7 @@ func (b *Block) Cast(value value.Value, cast types.Type) value.Value {
 	}
 
 	// Cast float to float
-	if types.IsFp(atomic) && types.IsFp(atomicCast){
+	if types.IsFp(atomic) && types.IsFp(atomicCast) {
 		if types.Compare(atomic, atomicCast) == -1 {
 			// Cast is bigger so expand value
 			i := instructions.NewFpext(b, b.nextName(), value, atomicCast)
@@ -398,4 +424,3 @@ func (b *Block) Cast(value value.Value, cast types.Type) value.Value {
 
 	panic("Cannot cast non integer or pointer value")
 }
-
