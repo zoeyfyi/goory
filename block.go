@@ -317,6 +317,15 @@ func (b *Block) Sitofp(value value.Value, cast types.Type) *instructions.Sitofp 
 	return i
 }
 
+// Srem creates a new srem instruction.
+// lhs and rhs must be integer types of the same size.
+// Srem returns the result of this instruction with the same type as lhs and rhs.
+func (b *Block) Srem(lhs value.Value, rhs value.Value) *instructions.Srem {
+	i := instructions.NewSrem(b, b.nextName(), lhs, rhs)
+	b.instructions = append(b.instructions, i)
+	return i
+}
+
 // Store creates a new store instruction.
 // value must be the same type as the allocation.
 // Store retruns the result of the instruction with the same type as lhs and rhs.

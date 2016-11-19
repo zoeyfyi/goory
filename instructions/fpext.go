@@ -36,9 +36,9 @@ func (i *Fpext) Ident() string {
 }
 
 func (i *Fpext) Llvm() string {
-	return fmt.Sprintf("%s = fpext %s %s to %s",
+	return fmt.Sprintf("%%%s = fpext %s %s to %s",
 		i.name,
 		i.value.Type().String(),
-		i.value.Llvm(),
+		i.value.Ident(),
 		i.cast.String())
 }

@@ -37,9 +37,9 @@ func (i *Fptosi) Ident() string {
 }
 
 func (i *Fptosi) Llvm() string {
-	return fmt.Sprintf("%s = fptosi %s %s to %s",
+	return fmt.Sprintf("%%%s = fptosi %s %s to %s",
 		i.name,
 		i.value.Type().String(),
-		i.value.Llvm(),
+		i.value.Ident(),
 		i.cast.String())
 }
