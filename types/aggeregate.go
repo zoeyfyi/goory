@@ -21,7 +21,7 @@ func NewArrayType(baseType Type, count int) Aggregate {
 }
 
 func (t ArrayType) String() string {
-	return fmt.Sprintf("[%s x %d]", t.baseType.String(), t.count)
+	return fmt.Sprintf("[%d x %s]", t.count, t.baseType.String())
 }
 
 // Position returns the type at position n
