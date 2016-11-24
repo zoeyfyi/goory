@@ -51,9 +51,9 @@ func (i *Alloca) Llvm() string {
 			i.name,
 			i.alocType.String(),
 			i.number.Ident())
-	} else {
-		return fmt.Sprintf("%%%s = alloca %s",
-			i.name,
-			i.alocType.String())
 	}
+
+	return fmt.Sprintf("%%%s = alloca %s",
+		i.name,
+		i.alocType.String())
 }

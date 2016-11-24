@@ -22,11 +22,21 @@ func (v constant) Llvm() string {
 }
 
 func (v constant) Ident() string {
-	switch v.value.(type) {
+	switch v := v.value.(type) {
 	case float32, float64:
-		return fmt.Sprintf("%f", v.value)
+		return fmt.Sprintf("%f", v)
+	case []value.Value:
+		s := "[ "
+		for i, item := range v {
+			s += fmt.Sprintf("%s %s", item.Type().String(), item.Ident())
+			if i < len(v)-1 {
+				s += ", "
+			}
+		}
+		s += " ]"
+		return s
 	default:
-		return fmt.Sprintf("%v", v.value)
+		return fmt.Sprintf("%v", v)
 	}
 }
 
