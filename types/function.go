@@ -1,28 +1,39 @@
 package types
 
-type FunctionType struct {
+import "fmt"
+
+type Function struct {
 	returnType Type
 	argTypes   []Type
 }
 
-func NewFunctionType(returnType Type, argTypes ...Type) Type {
-	return FunctionType{returnType, argTypes}
+func NewFunction(returnType Type, argTypes ...Type) Function {
+	return Function{returnType, argTypes}
 }
 
-func (t FunctionType) String() string {
-	return "function type"
+func (t Function) String() string {
+	args := ""
+	for i, a := range t.argTypes {
+		args += a.String()
+
+		if i < len(t.argTypes)-1 {
+			args += ", "
+		}
+	}
+
+	return fmt.Sprintf("%s (%s)", t.returnType.String(), args)
 }
 
-func (t FunctionType) Arguments() []Type {
+func (t Function) Arguments() []Type {
 	return t.argTypes
 }
 
-func (t FunctionType) ReturnType() Type {
+func (t Function) ReturnType() Type {
 	return t.returnType
 }
 
-func (t FunctionType) Equal(n Type) bool {
-	if nf, ok := n.(FunctionType); ok {
+func (t Function) Equal(n Type) bool {
+	if nf, ok := n.(Function); ok {
 		if !nf.returnType.Equal(t.returnType) {
 			return false
 		}

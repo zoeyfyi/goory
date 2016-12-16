@@ -55,7 +55,7 @@ func (f *Function) Llvm() string {
 	}
 
 	s := fmt.Sprintf("define %s @%s(%s){\n",
-		f.Type().(types.FunctionType).ReturnType().String(), f.name, argString)
+		f.Type().(types.Function).ReturnType().String(), f.name, argString)
 
 	for _, b := range f.blocks {
 		s += b.Llvm()
@@ -74,7 +74,7 @@ func (f *Function) Type() types.Type {
 	for _, a := range f.args {
 		args = append(args, a.Type())
 	}
-	return types.NewFunctionType(f.returnType, args...)
+	return types.NewFunction(f.returnType, args...)
 }
 
 // Arguments returns the values of function arguments

@@ -21,8 +21,8 @@ func assertInt(t types.Type) {
 	}
 }
 
-func assertFunction(t types.Type) types.FunctionType {
-	fType, ok := t.(types.FunctionType)
+func assertFunction(t types.Type) types.Function {
+	fType, ok := t.(types.Function)
 	if !ok {
 		panic("Value is not a function type")
 	}

@@ -96,24 +96,3 @@ func (t BoolType) Equal(n Type) bool {
 	_, ok := n.(BoolType)
 	return ok
 }
-
-// VoidType is a zero bit void/nil/null type in llvm
-type VoidType struct{}
-
-// NewVoidType creates a new void type
-func NewVoidType() Type {
-	return VoidType{}
-}
-
-func (t VoidType) String() string {
-	return "void"
-}
-
-func (t VoidType) Bits() int {
-	return 0
-}
-
-func (t VoidType) Equal(n Type) bool {
-	_, ok := n.(VoidType)
-	return ok
-}

@@ -10,7 +10,8 @@ import (
 
 // Conditional Branch statement
 type CondBr struct {
-	block value.Value; name string
+	block      value.Value
+	name       string
 	condition  value.Value
 	trueBlock  value.Value
 	falseBlock value.Value
@@ -41,7 +42,7 @@ func (i *CondBr) IsTerminator() bool {
 }
 
 func (i *CondBr) Type() types.Type {
-	return types.NewVoidType()
+	return types.VOID
 }
 
 func (i *CondBr) Ident() string {

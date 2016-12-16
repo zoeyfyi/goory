@@ -29,7 +29,7 @@ func (i *Br) IsTerminator() bool {
 }
 
 func (i *Br) Type() types.Type {
-	return types.NewVoidType()
+	return types.VOID
 }
 
 func (i *Br) Ident() string {

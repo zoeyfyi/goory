@@ -10,7 +10,8 @@ import (
 
 // Call statement
 type Call struct {
-	block value.Value; name string
+	block    value.Value
+	name     string
 	function value.Value
 	operands []value.Value
 }
@@ -49,7 +50,7 @@ func (i *Call) IsTerminator() bool {
 }
 
 func (i *Call) Type() types.Type {
-	return i.function.Type().(types.FunctionType).ReturnType()
+	return i.function.Type().(types.Function).ReturnType()
 }
 
 func (i *Call) Ident() string {
@@ -70,7 +71,7 @@ func (i *Call) Llvm() string {
 
 	return fmt.Sprintf("%%%s = call %s %s(%s)",
 		i.name,
-		i.function.Type().(types.FunctionType).ReturnType().String(),
+		i.function.Type().(types.Function).ReturnType().String(),
 		i.function.Ident(),
 		arguments)
 }

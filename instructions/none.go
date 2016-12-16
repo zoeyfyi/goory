@@ -14,7 +14,7 @@ func (i *None) IsTerminator() bool {
 }
 
 func (i *None) Type() types.Type {
-	return types.NewVoidType()
+	return types.VOID
 }
 
 func (i *None) Ident() string {

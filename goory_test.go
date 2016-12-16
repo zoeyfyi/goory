@@ -1,6 +1,7 @@
 package goory_test
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/bongo227/goory"
@@ -15,6 +16,8 @@ func TestExampleFpadd(t *testing.T) {
 		function := module.NewFunction("fpadd", double)
 		a := function.AddArgument(double, "a")
 		b := function.AddArgument(double, "b")
+
+		fmt.Println(function.Type().String())
 
 		block := function.Entry()
 

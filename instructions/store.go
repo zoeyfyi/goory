@@ -28,7 +28,7 @@ func (i *Store) IsTerminator() bool {
 }
 
 func (i *Store) Type() types.Type {
-	return types.NewVoidType()
+	return types.VOID
 }
 
 func (i *Store) Ident() string {

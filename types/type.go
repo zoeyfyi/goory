@@ -6,6 +6,14 @@ type Type interface {
 	Equal(Type) bool
 }
 
+var (
+	INT32  = NewIntType(32)
+	INT64  = NewIntType(64)
+	FLOAT  = NewFloatType()
+	DOUBLE = NewDoubleType()
+	VOID   = NewVoid()
+)
+
 // Compare compares two atomics a and b
 // returns 1 	if a > b
 // returns 0 	if a = b
