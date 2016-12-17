@@ -9,14 +9,14 @@ import (
 )
 
 type Store struct {
-	block      value.Value
-	allocation *Alloca
-	value      value.Value
+	block   value.Value
+	element value.Pointer
+	value   value.Value
 }
 
 // NewStore creates a new Add operation
-func NewStore(block value.Value, allocation *Alloca, value value.Value) *Store {
-	return &Store{block, allocation, value}
+func NewStore(block value.Value, element value.Pointer, value value.Value) *Store {
+	return &Store{block, element, value}
 }
 
 func (i *Store) Block() value.Value {
@@ -39,6 +39,6 @@ func (i *Store) Llvm() string {
 	return fmt.Sprintf("store %s %s, %s %s",
 		i.value.Type().String(),
 		i.value.Ident(),
-		i.allocation.Type().String(),
-		i.allocation.Ident())
+		i.element.Type().String(),
+		i.element.Ident())
 }

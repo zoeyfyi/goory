@@ -224,6 +224,12 @@ func (b *Block) Fsub(lhs value.Value, rhs value.Value) *instructions.Fsub {
 	return i
 }
 
+func (b *Block) Getelementptr(typ types.Type, element value.Pointer, location ...value.Value) *instructions.Getelementptr {
+	i := instructions.NewGetelementptr(b, b.nextName(), typ, element, location...)
+	b.instructions = append(b.instructions, i)
+	return i
+}
+
 var (
 	// IntEq is an integer equals comparison
 	IntEq = "eq"
@@ -267,8 +273,8 @@ func (b *Block) Icmp(mode string, lhs, rhs value.Value) *instructions.Icmp {
 
 // Load creates a new load instruction.
 // Load returns the result of the instruction with the same type as the allocation.
-func (b *Block) Load(allocation *instructions.Alloca) *instructions.Load {
-	i := instructions.NewLoad(b, b.nextName(), allocation)
+func (b *Block) Load(element value.Pointer) *instructions.Load {
+	i := instructions.NewLoad(b, b.nextName(), element)
 	b.instructions = append(b.instructions, i)
 	return i
 }
@@ -329,8 +335,8 @@ func (b *Block) Srem(lhs value.Value, rhs value.Value) *instructions.Srem {
 // Store creates a new store instruction.
 // value must be the same type as the allocation.
 // Store retruns the result of the instruction with the same type as lhs and rhs.
-func (b *Block) Store(allocation *instructions.Alloca, value value.Value) {
-	i := instructions.NewStore(b, allocation, value)
+func (b *Block) Store(element value.Pointer, value value.Value) {
+	i := instructions.NewStore(b, element, value)
 	b.instructions = append(b.instructions, i)
 }
 

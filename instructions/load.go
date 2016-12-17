@@ -9,14 +9,14 @@ import (
 )
 
 type Load struct {
-	block      value.Value
-	name       string
-	allocation *Alloca
+	block   value.Value
+	name    string
+	element value.Pointer
 }
 
 // NewLoad creates a new Add operation
-func NewLoad(block value.Value, name string, allocation *Alloca) *Load {
-	return &Load{block, name, allocation}
+func NewLoad(block value.Value, name string, element value.Pointer) *Load {
+	return &Load{block, name, element}
 }
 
 func (i *Load) Block() value.Value {
@@ -28,7 +28,7 @@ func (i *Load) IsTerminator() bool {
 }
 
 func (i *Load) Type() types.Type {
-	return i.allocation.BaseType()
+	return i.element.BaseType()
 }
 
 func (i *Load) Ident() string {
@@ -39,6 +39,6 @@ func (i *Load) Llvm() string {
 	return fmt.Sprintf("%%%s = load %s, %s %s",
 		i.name,
 		i.Type().String(),
-		i.allocation.Type().String(),
-		i.allocation.Ident())
+		i.element.Type().String(),
+		i.element.Ident())
 }
