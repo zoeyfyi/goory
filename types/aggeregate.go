@@ -20,6 +20,11 @@ func NewArrayType(baseType Type, count int) Aggregate {
 	return ArrayType{baseType, count}
 }
 
+// BaseType returns the bast type of the array type
+func (t ArrayType) BaseType() Type {
+	return t.baseType
+}
+
 func (t ArrayType) String() string {
 	return fmt.Sprintf("[%d x %s]", t.count, t.baseType.String())
 }
