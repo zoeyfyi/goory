@@ -36,7 +36,7 @@ func (i *Fptrunc) Ident() string {
 }
 
 func (i *Fptrunc) Llvm() string {
-	return fmt.Sprintf("%s = fptrunc %s %s to %s",
+	return fmt.Sprintf("%%%s = fptrunc %s %s to %s",
 		i.name,
 		i.value.Type().String(),
 		i.value.Llvm(),
