@@ -18,9 +18,9 @@ type Call struct {
 
 func NewCall(block value.Value, name string, function value.Value, operands ...value.Value) *Call {
 	fType := assertFunction(function.Type())
-	var types []types.Type
-	for _, o := range operands {
-		types = append(types, o.Type())
+	types := make([]types.Type, len(operands))
+	for i, o := range operands {
+		types[i] = o.Type()
 	}
 
 	// Check we have the correct ammount of operands
