@@ -58,7 +58,9 @@ func (f *Function) Llvm() string {
 		f.Type().(types.Function).ReturnType().String(), f.name, argString)
 
 	for _, b := range f.blocks {
-		s += b.Llvm()
+		if !b.Empty() {
+			s += b.Llvm()
+		}
 	}
 
 	s += "}"

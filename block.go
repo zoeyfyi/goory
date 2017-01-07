@@ -29,6 +29,10 @@ func (b *Block) Function() *Function {
 	return b.function
 }
 
+func (b *Block) Empty() bool {
+	return len(b.instructions) == 0
+}
+
 // Name gets the name of the block
 func (b *Block) Name() string {
 	return b.name
@@ -56,7 +60,7 @@ func (b *Block) Ident() string {
 
 // Terminated returns true if the block is terminated (ends in branch or return)
 func (b *Block) Terminated() bool {
-	return b.instructions[len(b.instructions)-1].IsTerminator()
+	return !b.Empty() && b.instructions[len(b.instructions)-1].IsTerminator()
 }
 
 // Add creates a new add instruction.
